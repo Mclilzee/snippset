@@ -140,6 +140,17 @@ mod test {
         assert_eq!(row, 3);
     }
 
+    #[test]
+    fn get_cursor_with_newline_moving_backward() {
+        let mut editable = create_editable("This is test\rwith \rnew lin\res");
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_left();
+        let (column, row) = editable.get_cursor_position();
+        assert_eq!(column, 7);
+        assert_eq!(row, 2);
+    }
+
     fn create_editable(text: &str) -> EditableText {
         let mut editable = EditableText::new();
         text.chars().for_each(|c| editable.insert(c));
