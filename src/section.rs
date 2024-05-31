@@ -15,7 +15,7 @@ impl Section {
         for i in 0..chars.len() - 1 {
             column += 1;
             if chars[i] == '{' && chars[i + 1] == '}' {
-                sections.push(Section::editable(prefix, column, row));
+                sections.push(Section::editable(prefix));
                 prefix = String::new();
             } else if chars[i] == '\r' {
                 row += 1;
@@ -36,10 +36,10 @@ impl Section {
         }
     }
 
-    fn editable(prefix: String, column: u16, row: u16) -> Self {
+    fn editable(prefix: String) -> Self {
         Section {
             prefix,
-            suffix: Some(EditableText::new(column, row)),
+            suffix: Some(EditableText::new()),
         }
     }
 }

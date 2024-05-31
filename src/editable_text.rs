@@ -1,5 +1,3 @@
-use crossterm::event::KeyCode;
-
 pub struct EditableText {
     index: usize,
     chars: Vec<char>,
