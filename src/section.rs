@@ -1,16 +1,20 @@
+use std::fmt::Error;
+
 use crossterm::event::KeyCode;
 
 pub struct Section {
-    pub position: (u16, u16),
+    pub column: u16,
+    pub row: u16,
     prefix: String,
     suffix: Vec<char>,
 }
 
 impl Section {
-    pub fn new(content: &str) -> Self {
+    pub fn new(prefix: &str, column: u16, row: u16) -> Self {
         Section {
-            position: (content.len() as u16 + 1, 0),
-            prefix: content.to_owned(),
+            column,
+            row,
+            prefix: prefix.to_owned(),
             suffix: Vec::new(),
         }
     }
@@ -19,23 +23,35 @@ impl Section {
         match code {
             KeyCode::Char(c) => {
                 self.suffix.push(c);
-                self.position.1 += 1;
+                self.column += 1;
             }
             KeyCode::Enter => {
                 self.suffix.push('\r');
-                self.position.0 = 0;
-                self.position.1 += 1;
+                self.column = 0;
+                self.row += 1;
             }
             KeyCode::Backspace => {
                 if !self.suffix.is_empty() {
-                    let removed = self.suffix.remove(self.position.0 as usize);
-                    self.position.0 -= 1;
+                    let removed = self.suffix.remove(self.column as usize);
+                    self.column -= 1;
                     if removed == '\r' {
-                        self.position.1 -= 1;
+                        self.row -= 1;
                     };
                 }
             }
             _ => (),
         };
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Section;
+
+    #[test]
+    fn get_position_correctly() {
+        let section = Section::new("Hello world this is a section", 20, 5);
+        assert_eq!(section.column, 20);
+        assert_eq!(section.row, 5);
     }
 }
