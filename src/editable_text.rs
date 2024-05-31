@@ -32,6 +32,10 @@ impl EditableText {
     pub fn cursor_left(&mut self) {
         self.cursor -= 1;
     }
+
+    pub fn cursor_right(&mut self) {
+        self.cursor += 1;
+    }
 }
 
 #[cfg(test)]
@@ -73,15 +77,26 @@ mod test {
 
     #[test]
     fn moves_cursor_left() {
-        let mut editable = create_editable("hello");
+        let mut editable = create_editable("my friend");
+        editable.cursor_left();
+        editable.cursor_left();
         editable.cursor_left();
         editable.delete();
         editable.delete();
-
-        assert_eq!("heo".to_owned(), editable.text());
+        assert_eq!("my fend".to_owned(), editable.text());
     }
 
-    fn moves_cursor_right() {}
+    fn moves_cursor_right() {
+        let mut editable = create_editable("new text to see");
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_right();
+        editable.delete();
+        editable.delete();
+        assert_eq!("new text tsee".to_owned(), editable.text());
+    }
 
     fn create_editable(text: &str) -> EditableText {
         let mut editable = EditableText::new();
