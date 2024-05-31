@@ -67,7 +67,7 @@ mod test {
     }
 
     #[test]
-    fn removes_currectly() {
+    fn removes_correctly() {
         let mut editable = create_editable("hello");
         editable.delete();
         editable.delete();
