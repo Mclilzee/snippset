@@ -64,18 +64,6 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
             {
                 break;
             };
-
-            match event.code {
-                KeyCode::Char(c) => {
-                    text.get(index).unwrap().push(c);
-                    execute!(stdout, cursor::MoveRight(1))?;
-                }
-                KeyCode::Enter => {
-                    text.get(index).unwrap().push('\r');
-                    execute!(stdout, cursor::MoveRight(1))?;
-                }
-                _ => (),
-            };
         }
     }
 
