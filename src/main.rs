@@ -1,4 +1,5 @@
 mod section;
+mod section_manager;
 
 use section::Section;
 use std::collections::HashMap;
@@ -45,7 +46,6 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     let mut current_section = 0;
 
     loop {
-        print_current_snippet(snippet, sections, &mut stdout)
         if let Event::Key(event) = read()? {
             if event.kind != KeyEventKind::Press {
                 continue;
@@ -78,11 +78,7 @@ fn print_initial_state(snippet: &str, title: &str, stdout: &mut Stdout) -> io::R
     Ok(())
 }
 
-fn print_current_snippet(
-    snippet: &str,
-    sections: &[Section],
-    stdout: &mut Stdout,
-) -> io::Result<()> {
+fn print_current_snippet(snippet: &str, stdout: &mut Stdout) -> io::Result<()> {
     execute!(
         stdout,
         cursor::SavePosition,
