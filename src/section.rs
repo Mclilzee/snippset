@@ -27,11 +27,13 @@ impl Section {
                 self.position.1 += 1;
             }
             KeyCode::Backspace => {
-                let removed = self.suffix.remove(self.position.0 as usize);
-                self.position.0 -= 1;
-                if removed == '\r' {
-                    self.position.1 -= 1;
-                };
+                if !self.suffix.is_empty() {
+                    let removed = self.suffix.remove(self.position.0 as usize);
+                    self.position.0 -= 1;
+                    if removed == '\r' {
+                        self.position.1 -= 1;
+                    };
+                }
             }
             _ => (),
         };
