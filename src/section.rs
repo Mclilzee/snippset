@@ -26,11 +26,7 @@ impl Section {
                 }
             }
         }
-
-        if !prefix.is_empty() {
-            sections.push(Section::tail(prefix.iter().collect()));
-        }
-
+        sections.push(Section::tail(prefix.iter().collect()));
         sections
     }
 
@@ -60,17 +56,27 @@ mod test {
     }
 
     #[test]
+    fn always_contains_tail() {
+        let sections = Section::parse_content("");
+        assert!(sections.first().unwrap().suffix.is_none());
+    }
+
+    #[test]
     fn return_correct_section() {
         let sections = Section::parse_content("Hello this is content with no value {}");
-        assert!(!sections.is_empty());
+        assert!(sections.len() == 2);
+        assert!(sections.first().unwrap().suffix.is_some());
+        assert!(sections.get(1).unwrap().suffix.is_none());
     }
 
     #[test]
     fn parse_multiple_sections_including_tail() {
-        let sections = Section::parse_content(
-            "Hello this is content with no value {} This gonna be tail moving forward.",
-        );
-        assert!(sections.first().unwrap().suffix.is_some());
-        assert!(sections.get(1).unwrap().suffix.is_none());
+        let sections = Section::parse_content("Hello content {}, another{} tail moving forward.");
+        let first_section = sections.first().unwrap();
+        let second_section = sections.get(1).unwrap();
+        let tail = sections.get(2).unwrap();
+        assert_eq!(first_section.prefix, "Hello content ".to_owned());
+        assert_eq!(second_section.prefix, ", another".to_owned());
+        assert_eq!(tail.prefix, " tail moving forward.".to_owned());
     }
 }
