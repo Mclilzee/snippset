@@ -1,3 +1,5 @@
+mod section;
+
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout, Write};
 
@@ -39,16 +41,17 @@ fn main() -> Result<(), InquireError> {
 fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     let mut stdout = stdout();
     print_initial_state(snippet, title, &mut stdout)?;
-
-    let mut text: Vec<char> = Vec::new();
+    let mut text: Vec<Vec<char>> = Vec::new();
+    let mut index: usize = 0;
 
     loop {
         execute!(
             stdout,
-            cursor::MoveTo(0, 2),
+            cursor::SavePosition,
+            cursor::MoveTo(0, 3),
             terminal::Clear(terminal::ClearType::FromCursorDown),
-            cursor::MoveDown(2),
-            Print(text.iter().collect::<String>()),
+            Print(text.iter().flat_map(|v| v.iter()).collect::<String>()),
+            cursor::RestorePosition
         )?;
 
         if let Event::Key(event) = read()? {
@@ -60,9 +63,19 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
                 || (event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c'))
             {
                 break;
-            }
+            };
 
-            text.push('s');
+            match event.code {
+                KeyCode::Char(c) => {
+                    text.get(index).unwrap().push(c);
+                    execute!(stdout, cursor::MoveRight(1))?;
+                }
+                KeyCode::Enter => {
+                    text.get(index).unwrap().push('\r');
+                    execute!(stdout, cursor::MoveRight(1))?;
+                }
+                _ => (),
+            };
         }
     }
 
