@@ -45,12 +45,18 @@ impl Section {
     }
 
     pub fn text(&self) -> String {
-        "Hello this".to_string()
+        if let Some(editable) = &self.suffix {
+            format!("{}{}", self.prefix, editable.text())
+        } else {
+            self.prefix.to_string()
+        }
     }
 }
 
 #[cfg(test)]
 mod test {
+    use crate::editable_text::EditableText;
+
     use super::Section;
 
     #[test]
@@ -85,8 +91,20 @@ mod test {
     }
 
     #[test]
-    fn get_full_text() {
+    fn get_full_text_tail() {
         let section = Section::tail("Hello this".to_string());
         assert_eq!(section.text(), "Hello this".to_owned());
+    }
+
+    #[test]
+    fn get_full_text_editable() {
+        let mut section = Section::editable("Hello this ".to_string());
+        fill_editable_suffix(&mut section, "suffix here");
+        assert_eq!(section.text(), "Hello this suffix here".to_owned());
+    }
+
+    fn fill_editable_suffix(section: &mut Section, string: &str) {
+        let suffix = section.suffix.as_mut().unwrap();
+        string.chars().for_each(|c| suffix.insert(c));
     }
 }
