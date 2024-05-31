@@ -42,7 +42,7 @@ fn main() -> Result<(), InquireError> {
 
 fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     let mut stdout = stdout();
-    print_title(snippet, title, &mut stdout)?;
+    print_title(title, &mut stdout)?;
     let mut current_section = 0;
 
     loop {
