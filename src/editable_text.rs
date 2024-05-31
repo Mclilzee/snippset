@@ -39,3 +39,13 @@ impl EditableText {
         };
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::EditableText;
+
+    #[test]
+    fn advances_column() {
+        let mut editable = EditableText::new(0, 0);
+    }
+}

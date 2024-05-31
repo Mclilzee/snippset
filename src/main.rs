@@ -42,7 +42,7 @@ fn main() -> Result<(), InquireError> {
 
 fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     let mut stdout = stdout();
-    print_initial_state(snippet, title, &mut stdout)?;
+    print_title(snippet, title, &mut stdout)?;
     let mut current_section = 0;
 
     loop {
@@ -63,7 +63,7 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     Ok(())
 }
 
-fn print_initial_state(snippet: &str, title: &str, stdout: &mut Stdout) -> io::Result<()> {
+fn print_title(title: &str, stdout: &mut Stdout) -> io::Result<()> {
     execute!(
         stdout,
         cursor::MoveTo(0, 0),
@@ -71,8 +71,6 @@ fn print_initial_state(snippet: &str, title: &str, stdout: &mut Stdout) -> io::R
         Print(format!("Snippet: {title}\r")),
         cursor::MoveDown(1),
         Print("--------------------------------------\r"),
-        cursor::MoveDown(1),
-        Print(snippet),
     )?;
 
     Ok(())
