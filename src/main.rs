@@ -38,24 +38,17 @@ fn main() -> Result<(), InquireError> {
 
 fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     let mut stdout = stdout();
-    execute!(
-        stdout,
-        cursor::MoveTo(0, 0),
-        terminal::Clear(terminal::ClearType::FromCursorDown),
-        Print(format!("Snippet: {title}\r")),
-        cursor::MoveDown(1),
-        Print("--------------------------------------\r"),
-        cursor::MoveDown(1),
-    )?;
+    print_initial_state(snippet, title, &mut stdout)?;
+
+    let mut text: Vec<char> = Vec::new();
 
     loop {
         execute!(
             stdout,
-            cursor::MoveTo(0, 7),
-            terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(snippet),
             cursor::MoveTo(0, 2),
-            Print("text")
+            terminal::Clear(terminal::ClearType::FromCursorDown),
+            cursor::MoveDown(2),
+            Print(text.iter().collect::<String>()),
         )?;
 
         if let Event::Key(event) = read()? {
@@ -68,9 +61,26 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
             {
                 break;
             }
+
+            text.push('s');
         }
     }
 
     execute!(stdout, cursor::DisableBlinking)?;
+    Ok(())
+}
+
+fn print_initial_state(snippet: &str, title: &str, stdout: &mut Stdout) -> io::Result<()> {
+    execute!(
+        stdout,
+        cursor::MoveTo(0, 0),
+        terminal::Clear(terminal::ClearType::FromCursorDown),
+        Print(format!("Snippet: {title}\r")),
+        cursor::MoveDown(1),
+        Print("--------------------------------------\r"),
+        cursor::MoveDown(1),
+        Print(snippet),
+    )?;
+
     Ok(())
 }
