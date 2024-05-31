@@ -39,11 +39,16 @@ impl EditableText {
 
     pub fn get_cursor_position(&self) -> (u16, u16) {
         let mut column = 0;
-        for _ in 0..self.cursor {
+        let mut row = 0;
+        for i in 0..self.cursor {
             column += 1;
+            if self.chars[i] == '\r' {
+                row += 1;
+                column = 0;
+            }
         }
 
-        (column, 0)
+        (column, row)
     }
 }
 
@@ -125,6 +130,14 @@ mod test {
         let (column, row) = editable.get_cursor_position();
         assert_eq!(column, 24);
         assert_eq!(row, 0);
+    }
+
+    #[test]
+    fn get_cursor_with_newline() {
+        let editable = create_editable("This is test\rwith \rnew lin\res");
+        let (column, row) = editable.get_cursor_position();
+        assert_eq!(column, 2);
+        assert_eq!(row, 3);
     }
 
     fn create_editable(text: &str) -> EditableText {
