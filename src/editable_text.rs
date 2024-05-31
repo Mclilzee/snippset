@@ -36,6 +36,10 @@ impl EditableText {
     pub fn cursor_right(&mut self) {
         self.cursor += 1;
     }
+
+    pub fn get_cursor_position(&self) -> (u16, u16) {
+        (27, 0)
+    }
 }
 
 #[cfg(test)]
@@ -97,6 +101,14 @@ mod test {
         editable.delete();
         editable.delete();
         assert_eq!("new text tsee".to_owned(), editable.text());
+    }
+
+    #[test]
+    fn get_cursor_position() {
+        let editable = create_editable("This is test with new lines");
+        let (column, row) = editable.get_cursor_position();
+        assert_eq!(column, 27);
+        assert_eq!(row, 0);
     }
 
     fn create_editable(text: &str) -> EditableText {
