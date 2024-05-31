@@ -57,11 +57,18 @@ mod test {
     }
 
     #[test]
+    fn handles_newlines() {
+        let editable = create_editable("hel\rlo");
+        assert_eq!("hel\rlo".to_owned(), editable.text());
+    }
+
+    #[test]
     fn removes_currectly() {
         let mut editable = create_editable("hello");
         editable.delete();
-
-        assert_eq!("hell".to_owned(), editable.text());
+        editable.delete();
+        editable.delete();
+        assert_eq!("he".to_owned(), editable.text());
     }
 
     #[test]
@@ -69,8 +76,9 @@ mod test {
         let mut editable = create_editable("hello");
         editable.cursor_left();
         editable.delete();
+        editable.delete();
 
-        assert_eq!("helo".to_owned(), editable.text());
+        assert_eq!("heo".to_owned(), editable.text());
     }
 
     fn moves_cursor_right() {}
