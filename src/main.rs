@@ -25,19 +25,14 @@ fn snippets_list() -> Vec<String> {
 
 fn print_events() -> io::Result<()> {
     loop {
-        let event = read()?;
-        match event {
-            Event::Key(event) if event.kind == KeyEventKind::Press => {
-                print!("Key pressed: ");
-                if event.modifiers != KeyModifiers::NONE {
-                    print!("{:?}+", event.modifiers);
-                }
-                println!("{:?}\r", event.code);
-                if event.code == KeyCode::Esc {
-                    break;
-                }
+        if let Event::Key(event) = read()? {
+            if event.kind == KeyEventKind::Press && event.code == KeyCode::Esc {
+                break;
             }
-            _ => {}
+
+            if event.kind == KeyEventKind::Press {
+                println!("{event:?}");
+            }
         }
     }
     Ok(())
