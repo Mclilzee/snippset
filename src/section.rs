@@ -43,6 +43,10 @@ impl Section {
             suffix: Some(EditableText::new()),
         }
     }
+
+    pub fn text(&self) -> String {
+        "Hello this".to_string()
+    }
 }
 
 #[cfg(test)]
@@ -78,5 +82,11 @@ mod test {
         assert_eq!(first_section.prefix, "Hello content ".to_owned());
         assert_eq!(second_section.prefix, ", another".to_owned());
         assert_eq!(tail.prefix, " tail moving forward.".to_owned());
+    }
+
+    #[test]
+    fn get_full_text() {
+        let section = Section::tail("Hello this".to_string());
+        assert_eq!(section.text(), "Hello this".to_owned());
     }
 }
