@@ -13,23 +13,32 @@ impl EditableText {
         }
     }
 
-    pub fn parse_input(&mut self, code: KeyCode) {
-        match code {
-            KeyCode::Char(c) => {
-                self.chars.push(c);
-                self.index += 1;
+    pub fn insert(&mut self, c: char) {
+        self.chars.push(c);
+        self.index += 1;
+    }
+
+    pub fn remove(&mut self) {
+        if !self.chars.is_empty() {
+            self.chars.remove(self.index);
+            if self.index > 0 {
+                self.index -= 1;
             }
-            KeyCode::Enter => {
-                self.chars.push('\r');
-                self.index += 1;
-            }
-            KeyCode::Backspace => {
-                if !self.chars.is_empty() {
-                    self.chars.remove(self.index);
-                    self.index -= 1;
-                }
-            }
-            _ => (),
-        };
+        }
+    }
+
+    pub fn text(&self) -> String {
+        self.chars.iter().collect()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::EditableText;
+
+    #[test]
+    fn advances_column() {
+        let editable = EditableText::new();
+        assert!(editable.text().is_empty());
     }
 }
