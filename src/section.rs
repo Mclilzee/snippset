@@ -1,46 +1,46 @@
-use std::fmt::Error;
-
-use crossterm::event::KeyCode;
+use crate::editable_text::EditableText;
 
 pub struct Section {
-    pub column: u16,
-    pub row: u16,
     prefix: String,
-    suffix: Vec<char>,
+    suffix: Option<EditableText>,
 }
 
 impl Section {
-    pub fn new(prefix: &str, column: u16, row: u16) -> Self {
+    pub fn parse_content(content: &str) -> Vec<Section> {
+        let chars = content.chars().collect::<Vec<char>>();
+        let mut column = 0;
+        let mut row = 0;
+        let mut sections = Vec::new();
+        let mut prefix = String::new();
+        for i in 0..chars.len() - 1 {
+            column += 1;
+            if chars[i] == '{' && chars[i + 1] == '}' {
+                sections.push(Section::editable(prefix, column, row));
+                prefix = String::new();
+            } else if chars[i] == '\r' {
+                row += 1;
+                column = 0;
+            }
+        }
+
+        if !prefix.is_empty() {
+            sections.push(Section::tail(prefix));
+        }
+        sections
+    }
+
+    fn tail(prefix: String) -> Self {
         Section {
-            column,
-            row,
-            prefix: prefix.to_owned(),
-            suffix: Vec::new(),
+            prefix,
+            suffix: None,
         }
     }
 
-    pub fn parse_input(&mut self, code: KeyCode) {
-        match code {
-            KeyCode::Char(c) => {
-                self.suffix.push(c);
-                self.column += 1;
-            }
-            KeyCode::Enter => {
-                self.suffix.push('\r');
-                self.column = 0;
-                self.row += 1;
-            }
-            KeyCode::Backspace => {
-                if !self.suffix.is_empty() {
-                    let removed = self.suffix.remove(self.column as usize);
-                    self.column -= 1;
-                    if removed == '\r' {
-                        self.row -= 1;
-                    };
-                }
-            }
-            _ => (),
-        };
+    fn editable(prefix: String, column: u16, row: u16) -> Self {
+        Section {
+            prefix,
+            suffix: Some(EditableText::new(column, row)),
+        }
     }
 }
 
@@ -49,9 +49,14 @@ mod test {
     use super::Section;
 
     #[test]
-    fn get_position_correctly() {
-        let section = Section::new("Hello world this is a section", 20, 5);
-        assert_eq!(section.column, 20);
-        assert_eq!(section.row, 5);
+    fn return_string_as_section_prefix() {
+        let sections = Section::parse_content("Hello this is content with no value");
+        assert!(sections.is_empty());
+    }
+
+    #[test]
+    fn return_correct_section() {
+        let sections = Section::parse_content("Hello this is content with no value {}");
+        assert!(!sections.is_empty());
     }
 }

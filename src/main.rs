@@ -1,7 +1,7 @@
+mod editable_text;
 mod section;
 mod section_manager;
 
-use section::Section;
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout, Write};
 
