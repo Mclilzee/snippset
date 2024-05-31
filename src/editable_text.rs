@@ -86,6 +86,7 @@ mod test {
         assert_eq!("my fend".to_owned(), editable.text());
     }
 
+    #[test]
     fn moves_cursor_right() {
         let mut editable = create_editable("new text to see");
         editable.cursor_left();
