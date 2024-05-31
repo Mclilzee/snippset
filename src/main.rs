@@ -1,5 +1,6 @@
 mod section;
 
+use section::Section;
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout, Write};
 
@@ -41,19 +42,10 @@ fn main() -> Result<(), InquireError> {
 fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     let mut stdout = stdout();
     print_initial_state(snippet, title, &mut stdout)?;
-    let mut text: Vec<Vec<char>> = Vec::new();
-    let mut index: usize = 0;
+    let mut current_section = 0;
 
     loop {
-        execute!(
-            stdout,
-            cursor::SavePosition,
-            cursor::MoveTo(0, 3),
-            terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(text.iter().flat_map(|v| v.iter()).collect::<String>()),
-            cursor::RestorePosition
-        )?;
-
+        print_current_snippet(snippet, sections, &mut stdout)
         if let Event::Key(event) = read()? {
             if event.kind != KeyEventKind::Press {
                 continue;
@@ -81,6 +73,23 @@ fn print_initial_state(snippet: &str, title: &str, stdout: &mut Stdout) -> io::R
         Print("--------------------------------------\r"),
         cursor::MoveDown(1),
         Print(snippet),
+    )?;
+
+    Ok(())
+}
+
+fn print_current_snippet(
+    snippet: &str,
+    sections: &[Section],
+    stdout: &mut Stdout,
+) -> io::Result<()> {
+    execute!(
+        stdout,
+        cursor::SavePosition,
+        cursor::MoveTo(0, 3),
+        terminal::Clear(terminal::ClearType::FromCursorDown),
+        Print(snippet),
+        cursor::RestorePosition
     )?;
 
     Ok(())
