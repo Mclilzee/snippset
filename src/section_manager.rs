@@ -27,4 +27,10 @@ mod tests {
         let manager = SnippetManager::new("My title", "Hello this is just text");
         assert_eq!(manager.title, "My title");
     }
+
+    #[test]
+    fn correct_content_set() {
+        let manager = SnippetManager::new("My title", "Hello this is just text");
+        assert_eq!(manager.snippet, "My title");
+    }
 }
