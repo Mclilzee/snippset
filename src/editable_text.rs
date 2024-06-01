@@ -15,8 +15,8 @@ impl Editable {
     }
 
     pub fn insert(&mut self, c: char) {
-        self.suffix.insert(self.cursor - 1, c);
         self.cursor += 1;
+        self.suffix.insert(self.cursor - 1, c);
     }
 
     pub fn delete(&mut self) {
