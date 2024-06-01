@@ -20,20 +20,24 @@ impl Editable {
     }
 
     pub fn delete(&mut self) {
+        if self.cursor == 0 {
+            return;
+        }
+
         if !self.suffix.is_empty() {
             self.suffix.remove(self.cursor - 1);
-            if self.cursor > 0 {
-                self.cursor -= 1;
-            }
+            self.cursor -= 1;
         }
     }
 
     pub fn text(&self) -> String {
-        self.suffix.iter().collect()
+        format!("{}{}", self.prefix, self.suffix.iter().collect::<String>())
     }
 
     pub fn cursor_left(&mut self) {
-        self.cursor -= 1;
+        if self.cursor > 0 {
+            self.cursor -= 1;
+        }
     }
 
     pub fn cursor_right(&mut self) {
