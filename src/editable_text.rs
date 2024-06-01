@@ -15,7 +15,7 @@ impl Editable {
     }
 
     pub fn insert(&mut self, c: char) {
-        self.suffix.push(c);
+        self.suffix.insert(self.cursor - 1, c);
         self.cursor += 1;
     }
 
@@ -127,7 +127,7 @@ mod test {
         editable.delete();
         editable.cursor_left();
         editable.insert('s');
-        assert_eq!("this is my fsend".to_owned(), editable.text());
+        assert_eq!("this is my sfend".to_owned(), editable.text());
     }
 
     #[test]
@@ -142,7 +142,7 @@ mod test {
         editable.delete();
         editable.cursor_right();
         editable.insert('r');
-        assert_eq!("ignore me new text tsree".to_owned(), editable.text());
+        assert_eq!("ignore me new text trsee".to_owned(), editable.text());
     }
 
     #[test]
