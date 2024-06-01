@@ -1,12 +1,12 @@
-use crate::editable_text::EditableText;
+use crate::editable_text::Editable;
 
-pub struct Section {
-    prefix: String,
-    suffix: Option<EditableText>,
+pub enum Section {
+    Body(Editable),
+    Tail(String),
 }
 
 impl Section {
-    pub fn parse_content(content: &str) -> Vec<Section> {
+    pub fn parse_content(content: &str) -> Vec<Self> {
         let chars = content.chars().collect::<Vec<char>>();
         let mut sections = Vec::new();
         let mut prefix = Vec::new();
@@ -31,32 +31,23 @@ impl Section {
     }
 
     fn tail(prefix: String) -> Self {
-        Section {
-            prefix,
-            suffix: None,
-        }
+        Section::Tail(prefix)
     }
 
     fn editable(prefix: String) -> Self {
-        Section {
-            prefix,
-            suffix: Some(EditableText::new()),
-        }
+        Section::Body(Editable::new(prefix))
     }
 
     pub fn text(&self) -> String {
-        if let Some(editable) = &self.suffix {
-            format!("{}{}", self.prefix, editable.text())
-        } else {
-            self.prefix.to_string()
+        match self {
+            Section::Body(editable) => editable.text(),
+            Section::Tail(str) => str.to_owned(),
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::editable_text::EditableText;
-
     use super::Section;
 
     #[test]
