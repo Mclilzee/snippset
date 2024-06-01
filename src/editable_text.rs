@@ -1,4 +1,4 @@
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Editable {
     cursor: usize,
     prefix: String,
