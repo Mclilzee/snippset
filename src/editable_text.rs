@@ -128,6 +128,27 @@ mod test {
     }
 
     #[test]
+    fn moves_cursor_left_respects_boundary() {
+        let mut editable = create_editable("text", "c");
+        assert_eq!(1, editable.cursor);
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_left();
+        assert_eq!(0, editable.cursor);
+    }
+
+    #[test]
+    fn moves_cursor_right_respects_boundary() {
+        let mut editable = create_editable("text", "c");
+        assert_eq!(1, editable.cursor);
+        editable.cursor_left();
+        editable.cursor_right();
+        editable.cursor_right();
+        editable.cursor_right();
+        assert_eq!(1, editable.cursor);
+    }
+    #[test]
     fn moves_cursor_right() {
         let mut editable = create_editable("new text", "O ok");
         assert_eq!(4, editable.cursor);
