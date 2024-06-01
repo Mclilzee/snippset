@@ -30,19 +30,19 @@ impl Editable {
         format!("{}{}", self.prefix, self.suffix.iter().collect::<String>())
     }
 
-    pub fn cursor_left(&mut self) {
+    pub fn move_left(&mut self) {
         if self.cursor > 0 {
             self.cursor -= 1;
         }
     }
 
-    pub fn cursor_right(&mut self) {
+    pub fn move_right(&mut self) {
         if self.cursor < self.suffix.len() {
             self.cursor += 1;
         }
     }
 
-    pub fn terminal_cursor_position(&self) -> (u16, u16) {
+    fn prefix_cursor_end(&self) -> (u16, u16) {
         let mut column = 0;
         let mut row = 0;
         self.prefix.chars().for_each(|c| {
@@ -53,6 +53,11 @@ impl Editable {
             }
         });
 
+        (column, row)
+    }
+
+    pub fn terminal_cursor_position(&self) -> (u16, u16) {
+        let (mut column, mut row) = self.prefix_cursor_end();
         self.suffix
             .iter()
             .enumerate()
@@ -121,9 +126,9 @@ mod test {
     fn moves_cursor_left() {
         let mut editable = create_editable("text", "my test");
         assert_eq!(7, editable.cursor);
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
         assert_eq!(4, editable.cursor);
     }
 
@@ -131,10 +136,10 @@ mod test {
     fn moves_cursor_left_respects_boundary() {
         let mut editable = create_editable("text", "c");
         assert_eq!(1, editable.cursor);
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
         assert_eq!(0, editable.cursor);
     }
 
@@ -142,28 +147,28 @@ mod test {
     fn moves_cursor_right_respects_boundary() {
         let mut editable = create_editable("text", "c");
         assert_eq!(1, editable.cursor);
-        editable.cursor_left();
-        editable.cursor_right();
-        editable.cursor_right();
-        editable.cursor_right();
+        editable.move_left();
+        editable.move_right();
+        editable.move_right();
+        editable.move_right();
         assert_eq!(1, editable.cursor);
     }
     #[test]
     fn moves_cursor_right() {
         let mut editable = create_editable("new text", "O ok");
         assert_eq!(4, editable.cursor);
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_right();
+        editable.move_left();
+        editable.move_left();
+        editable.move_right();
         assert_eq!(3, editable.cursor);
     }
 
     #[test]
     fn deletes_at_cursor_position() {
         let mut editable = create_editable("this is ", "my friend");
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
         editable.delete();
         editable.delete();
         assert_eq!("this is my fend".to_owned(), editable.text());
@@ -172,8 +177,8 @@ mod test {
     #[test]
     fn insert_at_cursor_position() {
         let mut editable = create_editable("another", " one");
-        editable.cursor_left();
-        editable.cursor_left();
+        editable.move_left();
+        editable.move_left();
         editable.insert('s');
         assert_eq!("another osne".to_owned(), editable.text());
     }
@@ -189,9 +194,9 @@ mod test {
     #[test]
     fn get_cursor_after_moving() {
         let mut editable = create_editable("first ", "ano ther");
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
         let (column, row) = editable.terminal_cursor_position();
         assert_eq!(column, 11);
         assert_eq!(row, 0);
@@ -200,10 +205,10 @@ mod test {
     #[test]
     fn get_cursor_after_moving_forward() {
         let mut editable = create_editable("first ", "ano ther");
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_right();
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
+        editable.move_right();
         let (column, row) = editable.terminal_cursor_position();
         assert_eq!(column, 12);
         assert_eq!(row, 0);
@@ -220,9 +225,9 @@ mod test {
     #[test]
     fn get_cursor_with_newline_moving_backward() {
         let mut editable = create_editable("Prefix", "This is test\rwith \rnew lin\res");
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
         let (column, row) = editable.terminal_cursor_position();
         assert_eq!(column, 7);
         assert_eq!(row, 2);
