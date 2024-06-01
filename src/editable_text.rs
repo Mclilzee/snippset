@@ -20,11 +20,7 @@ impl Editable {
     }
 
     pub fn delete(&mut self) {
-        if self.cursor == 0 {
-            return;
-        }
-
-        if !self.suffix.is_empty() {
+        if self.cursor > 0 {
             self.suffix.remove(self.cursor - 1);
             self.cursor -= 1;
         }
@@ -41,19 +37,30 @@ impl Editable {
     }
 
     pub fn cursor_right(&mut self) {
-        self.cursor += 1;
+        if self.cursor < self.suffix.len() {
+            self.cursor += 1;
+        }
     }
 
-    pub fn get_cursor_position(&self) -> (u16, u16) {
+    pub fn terminal_cursor_position(&self) -> (u16, u16) {
         let mut column = 0;
         let mut row = 0;
-        for i in 0..self.cursor {
+        println!("{}", self.text());
+        self.prefix.chars().for_each(|c| {
             column += 1;
-            if self.suffix[i] == '\r' {
+            if c == '\r' {
                 row += 1;
                 column = 0;
             }
-        }
+        });
+
+        self.suffix.iter().for_each(|c| {
+            column += 1;
+            if c == &'\r' {
+                row += 1;
+                column = 0;
+            }
+        });
 
         (column, row)
     }
@@ -137,8 +144,8 @@ mod test {
     #[test]
     fn get_cursor_position() {
         let editable = create_editable("first ", "ano ther");
-        let (column, row) = editable.get_cursor_position();
-        assert_eq!(column, 13);
+        let (column, row) = editable.terminal_cursor_position();
+        assert_eq!(column, 14);
         assert_eq!(row, 0);
     }
 
@@ -148,7 +155,7 @@ mod test {
         editable.cursor_left();
         editable.cursor_left();
         editable.cursor_left();
-        let (column, row) = editable.get_cursor_position();
+        let (column, row) = editable.terminal_cursor_position();
         assert_eq!(column, 10);
         assert_eq!(row, 0);
     }
@@ -160,7 +167,7 @@ mod test {
         editable.cursor_left();
         editable.cursor_left();
         editable.cursor_right();
-        let (column, row) = editable.get_cursor_position();
+        let (column, row) = editable.terminal_cursor_position();
         assert_eq!(column, 11);
         assert_eq!(row, 0);
     }
@@ -168,7 +175,7 @@ mod test {
     #[test]
     fn get_cursor_with_newline() {
         let editable = create_editable("new\rline", " test\r\rnew lin\res");
-        let (column, row) = editable.get_cursor_position();
+        let (column, row) = editable.terminal_cursor_position();
         assert_eq!(column, 2);
         assert_eq!(row, 4);
     }
@@ -179,7 +186,7 @@ mod test {
         editable.cursor_left();
         editable.cursor_left();
         editable.cursor_left();
-        let (column, row) = editable.get_cursor_position();
+        let (column, row) = editable.terminal_cursor_position();
         assert_eq!(column, 7);
         assert_eq!(row, 2);
     }
