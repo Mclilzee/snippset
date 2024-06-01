@@ -142,7 +142,7 @@ mod test {
         editable.delete();
         editable.cursor_right();
         editable.insert('r');
-        assert_eq!("ignore me new text trsee".to_owned(), editable.text());
+        assert_eq!("ignore me new text tsree".to_owned(), editable.text());
     }
 
     #[test]
@@ -160,7 +160,7 @@ mod test {
         editable.cursor_left();
         editable.cursor_left();
         let (column, row) = editable.terminal_cursor_position();
-        assert_eq!(column, 10);
+        assert_eq!(column, 11);
         assert_eq!(row, 0);
     }
 
@@ -172,7 +172,7 @@ mod test {
         editable.cursor_left();
         editable.cursor_right();
         let (column, row) = editable.terminal_cursor_position();
-        assert_eq!(column, 11);
+        assert_eq!(column, 12);
         assert_eq!(row, 0);
     }
 
