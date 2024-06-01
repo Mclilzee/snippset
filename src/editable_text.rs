@@ -119,30 +119,42 @@ mod test {
 
     #[test]
     fn moves_cursor_left() {
+        let mut editable = create_editable("text", "my test");
+        assert_eq!(7, editable.cursor);
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_left();
+        assert_eq!(4, editable.cursor);
+    }
+
+    #[test]
+    fn moves_cursor_right() {
+        let mut editable = create_editable("new text", "O ok");
+        assert_eq!(4, editable.cursor);
+        editable.cursor_left();
+        editable.cursor_left();
+        editable.cursor_right();
+        assert_eq!(3, editable.cursor);
+    }
+
+    #[test]
+    fn deletes_at_cursor_position() {
         let mut editable = create_editable("this is ", "my friend");
         editable.cursor_left();
         editable.cursor_left();
         editable.cursor_left();
         editable.delete();
         editable.delete();
-        editable.cursor_left();
-        editable.insert('s');
-        assert_eq!("this is my sfend".to_owned(), editable.text());
+        assert_eq!("this is my fend".to_owned(), editable.text());
     }
 
     #[test]
-    fn moves_cursor_right() {
-        let mut editable = create_editable("ignore me ", "new text to see");
+    fn insert_at_cursor_position() {
+        let mut editable = create_editable("another", " one");
         editable.cursor_left();
         editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_left();
-        editable.cursor_right();
-        editable.delete();
-        editable.delete();
-        editable.cursor_right();
-        editable.insert('r');
-        assert_eq!("ignore me new text tsree".to_owned(), editable.text());
+        editable.insert('s');
+        assert_eq!("another osne".to_owned(), editable.text());
     }
 
     #[test]
