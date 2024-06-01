@@ -45,7 +45,6 @@ impl Editable {
     pub fn terminal_cursor_position(&self) -> (u16, u16) {
         let mut column = 0;
         let mut row = 0;
-        println!("{}", self.text());
         self.prefix.chars().for_each(|c| {
             column += 1;
             if c == '\r' {
@@ -54,13 +53,18 @@ impl Editable {
             }
         });
 
-        self.suffix.iter().for_each(|c| {
-            column += 1;
-            if c == &'\r' {
-                row += 1;
-                column = 0;
-            }
-        });
+        self.suffix
+            .iter()
+            .enumerate()
+            .take_while(|(i, _)| i < &self.cursor)
+            .map(|(_, c)| c)
+            .for_each(|c| {
+                column += 1;
+                if c == &'\r' {
+                    row += 1;
+                    column = 0;
+                }
+            });
 
         (column, row)
     }
@@ -115,7 +119,7 @@ mod test {
 
     #[test]
     fn moves_cursor_left() {
-        let mut editable = create_editable("this is", "my friend");
+        let mut editable = create_editable("this is ", "my friend");
         editable.cursor_left();
         editable.cursor_left();
         editable.cursor_left();
@@ -193,7 +197,7 @@ mod test {
 
     fn create_editable(prefix: &str, suffix: &str) -> Editable {
         let mut editable = Editable::new(prefix.to_owned());
-        editable.suffix = suffix.chars().collect();
+        suffix.chars().for_each(|c| editable.insert(c));
         editable
     }
 }
