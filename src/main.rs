@@ -16,7 +16,7 @@ use crossterm::{execute, terminal};
 use inquire::{InquireError, Select};
 use section::Section;
 
-const TITLE_HEIGHT: u16 = 4;
+const TITLE_HEIGHT: u16 = 3;
 
 fn main() -> Result<(), InquireError> {
     execute!(
