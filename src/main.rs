@@ -84,7 +84,7 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
 fn print_snippet(sections: &[Section], sec_index: usize, stdout: &mut Stdout) -> io::Result<()> {
     let mut text = String::new();
     let mut column = 0;
-    let mut row = 0;
+    let mut row = TITLE_HEIGHT;
 
     for (index, section) in sections.iter().enumerate() {
         text += &section.text();
