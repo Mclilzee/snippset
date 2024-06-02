@@ -1,4 +1,4 @@
-mod editable_text;
+mod editable;
 mod section;
 mod section_manager;
 

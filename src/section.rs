@@ -1,4 +1,4 @@
-use crate::editable_text::Editable;
+use crate::editable::Editable;
 
 #[derive(Debug, PartialEq)]
 pub enum Section {
