@@ -72,6 +72,7 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
                 KeyCode::Left => section.move_left(),
                 KeyCode::Right => section.move_right(),
                 KeyCode::Enter => section_index += 1,
+                KeyCode::Backspace => section.delete(),
                 _ => (),
             }
         }
