@@ -72,6 +72,7 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
                 KeyCode::Left => section.move_left(),
                 KeyCode::Right => section.move_right(),
                 KeyCode::Enter => {
+                    section.reset_cursor();
                     section_index += 1;
                     if let Section::Tail(_) = sections.get(section_index).unwrap() {
                         break;
