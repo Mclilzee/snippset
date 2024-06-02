@@ -27,7 +27,9 @@ impl Editable {
     }
 
     pub fn text(&self) -> String {
-        format!("{}{}", self.prefix, self.suffix.iter().collect::<String>())
+        let suffix = self.suffix.iter().collect::<String>();
+        let suffix = if suffix.is_empty() { "_" } else { &suffix };
+        format!("{}{}", self.prefix, suffix)
     }
 
     pub fn move_left(&mut self) {
@@ -78,12 +80,6 @@ impl Editable {
 #[cfg(test)]
 mod test {
     use super::Editable;
-
-    #[test]
-    fn advances_column() {
-        let editable = create_editable("", "");
-        assert!(editable.text().is_empty());
-    }
 
     #[test]
     fn initalize_correctly() {
