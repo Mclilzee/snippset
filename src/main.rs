@@ -3,7 +3,7 @@ mod section;
 mod section_manager;
 
 use std::collections::HashMap;
-use std::io::{self, stdout, Stdout, Write};
+use std::io::{self, stdout, Stdout};
 
 use crossterm::cursor;
 use crossterm::event::{KeyEventKind, KeyModifiers};
@@ -13,7 +13,6 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 use crossterm::{execute, terminal};
-use editable_text::Editable;
 use inquire::{InquireError, Select};
 use section::Section;
 
