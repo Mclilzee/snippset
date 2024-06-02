@@ -13,7 +13,11 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 use crossterm::{execute, terminal};
+use editable_text::Editable;
 use inquire::{InquireError, Select};
+use section::Section;
+
+const TITLE_HEIGHT: u16 = 3;
 
 fn main() -> Result<(), InquireError> {
     execute!(
@@ -43,9 +47,11 @@ fn main() -> Result<(), InquireError> {
 fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
     let mut stdout = stdout();
     print_title(title, &mut stdout)?;
-    let mut current_section = 0;
+    let mut section_index = 0;
+    let mut sections = Section::parse_content(snippet);
 
     loop {
+        print_snippet(&sections, section_index, &mut stdout)?;
         if let Event::Key(event) = read()? {
             if event.kind != KeyEventKind::Press {
                 continue;
@@ -56,10 +62,56 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
             {
                 break;
             };
+
+            let section = match sections.get_mut(section_index).unwrap() {
+                Section::Tail(_) => return Ok(()),
+                Section::Body(editable) => editable,
+            };
+
+            match event.code {
+                KeyCode::Char(c) => section.insert(c),
+                KeyCode::Left => section.move_left(),
+                KeyCode::Right => section.move_right(),
+                KeyCode::Enter => section_index += 1,
+                _ => (),
+            }
         }
     }
 
     execute!(stdout, cursor::DisableBlinking)?;
+    Ok(())
+}
+
+fn print_snippet(sections: &[Section], sec_index: usize, stdout: &mut Stdout) -> io::Result<()> {
+    let mut text = String::new();
+    let mut column = 0;
+    let mut row = 0;
+
+    for (index, section) in sections.iter().enumerate() {
+        text += &section.text();
+        if let Section::Body(ed) = section {
+            let (ed_col, ed_row) = ed.terminal_cursor_position();
+            if index > sec_index {
+                continue;
+            }
+
+            if ed_row > 0 {
+                row += ed_row;
+                column = ed_col;
+            } else {
+                column += ed_col;
+            }
+        }
+    }
+
+    execute!(
+        stdout,
+        cursor::MoveTo(0, TITLE_HEIGHT),
+        terminal::Clear(terminal::ClearType::FromCursorDown),
+        Print(text),
+        cursor::MoveTo(column, row)
+    )?;
+
     Ok(())
 }
 
@@ -71,19 +123,6 @@ fn print_title(title: &str, stdout: &mut Stdout) -> io::Result<()> {
         Print(format!("Snippet: {title}\r")),
         cursor::MoveDown(1),
         Print("--------------------------------------\r"),
-    )?;
-
-    Ok(())
-}
-
-fn print_current_snippet(snippet: &str, stdout: &mut Stdout) -> io::Result<()> {
-    execute!(
-        stdout,
-        cursor::SavePosition,
-        cursor::MoveTo(0, 3),
-        terminal::Clear(terminal::ClearType::FromCursorDown),
-        Print(snippet),
-        cursor::RestorePosition
     )?;
 
     Ok(())
