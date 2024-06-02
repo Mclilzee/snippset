@@ -44,6 +44,10 @@ impl Editable {
         }
     }
 
+    pub fn reset_cursor(&mut self) {
+        self.cursor = self.suffix.len();
+    }
+
     fn prefix_cursor_end(&self) -> (u16, u16) {
         let mut column = 0;
         let mut row = 0;
@@ -155,6 +159,7 @@ mod test {
         editable.move_right();
         assert_eq!(1, editable.cursor);
     }
+
     #[test]
     fn moves_cursor_right() {
         let mut editable = create_editable("new text", "O ok");
@@ -163,6 +168,17 @@ mod test {
         editable.move_left();
         editable.move_right();
         assert_eq!(3, editable.cursor);
+    }
+
+    #[test]
+    fn resets_cursor_position() {
+        let mut editable = create_editable("ok", "cursor");
+        assert_eq!(6, editable.cursor);
+        editable.move_left();
+        editable.move_left();
+        assert_eq!(4, editable.cursor);
+        editable.reset_cursor();
+        assert_eq!(6, editable.cursor);
     }
 
     #[test]
