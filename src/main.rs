@@ -146,12 +146,6 @@ fn print_title(title: &str, stdout: &mut Stdout) -> io::Result<()> {
         Print(format!("Snippet: {title}\r")),
         cursor::MoveDown(1),
         Print("--------------------------------------\r"),
-        cursor::MoveDown(1),
-        Print(
-            "Keys: Enter for next section, Esc for prev, Arrow keys to move between characters\r"
-        ),
-        cursor::MoveDown(1),
-        Print("--------------------------------------\r"),
     )?;
 
     Ok(())
