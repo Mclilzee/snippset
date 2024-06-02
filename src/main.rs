@@ -16,7 +16,7 @@ use crossterm::{execute, terminal};
 use inquire::{InquireError, Select};
 use section::Section;
 
-const TITLE_HEIGHT: u16 = 5;
+const TITLE_HEIGHT: u16 = 4;
 
 fn main() -> Result<(), InquireError> {
     execute!(
@@ -130,14 +130,6 @@ fn print_snippet(sections: &[Section], sec_index: usize, stdout: &mut Stdout) ->
         stdout,
         cursor::MoveTo(0, TITLE_HEIGHT),
         terminal::Clear(terminal::ClearType::FromCursorDown),
-        cursor::MoveTo(0, 3),
-        Print(format!(
-            "{:?} column {} row {}",
-            terminal::size(),
-            column,
-            row
-        )),
-        cursor::MoveTo(0, TITLE_HEIGHT),
         Print(text),
         cursor::MoveTo(column, row)
     )?;
