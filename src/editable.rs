@@ -105,6 +105,12 @@ mod test {
     }
 
     #[test]
+    fn return_text_placeholder_if_empty() {
+        let editable = create_editable("hello ", "");
+        assert_eq!("hello _".to_owned(), editable.text());
+    }
+
+    #[test]
     fn insert_new_characters() {
         let mut editable = create_editable("just prefix ", "");
         editable.insert('w');
