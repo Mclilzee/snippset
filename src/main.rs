@@ -28,7 +28,7 @@ fn main() -> Result<(), InquireError> {
     let mut map = HashMap::new();
     map.insert(
         "hello snippet",
-        "This hello is a snippet {} placeholder {} lets go? {}",
+        "This hello is a snippet {} placeholder {} lets go? {} nice",
     );
     map.insert("Another snippet", "BEHAVE YOURSELF {} Please.");
 
@@ -73,9 +73,6 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
                 KeyCode::Enter => {
                     section.reset_cursor();
                     section_index += 1;
-                    if let Section::Tail(_) = sections.get(section_index).unwrap() {
-                        break;
-                    }
                 }
                 KeyCode::Backspace => section.delete(),
                 KeyCode::Esc => {
@@ -90,16 +87,11 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
         }
     }
 
-    let mut clipboard = ClipboardContext::new().unwrap();
-    clipboard
-        .set_contents(sections.iter().map(|s| s.text()).collect())
-        .unwrap();
-
     execute!(
         stdout,
         cursor::MoveTo(0, 0),
         terminal::Clear(terminal::ClearType::FromCursorDown),
-        Print(clipboard.get_contents().unwrap())
+        Print(sections.iter().map(|s| s.text()).collect::<String>())
     )?;
 
     Ok(())
@@ -112,18 +104,21 @@ fn print_snippet(sections: &[Section], sec_index: usize, stdout: &mut Stdout) ->
 
     for (index, section) in sections.iter().enumerate() {
         text += &section.text();
-        if let Section::Body(ed) = section {
-            let (ed_col, ed_row) = ed.terminal_cursor_position();
-            if index > sec_index {
-                continue;
-            }
+        match section {
+            Section::Body(ed) => {
+                let (ed_col, ed_row) = ed.terminal_cursor_position();
+                if index > sec_index {
+                    continue;
+                }
 
-            if ed_row > 0 {
-                row += ed_row;
-                column = ed_col;
-            } else {
-                column += ed_col;
+                if ed_row > 0 {
+                    row += ed_row;
+                    column = ed_col;
+                } else {
+                    column += ed_col;
+                }
             }
+            Section::Tail(str) => {}
         }
     }
 
