@@ -30,6 +30,7 @@ fn main() -> Result<(), InquireError> {
         "hello snippet",
         "This hello is a snippet {} placeholder {} lets go? {}",
     );
+    map.insert("Another snippet", "BEHAVE YOURSELF {} Please.");
 
     let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
     let snippet = map.get(key).unwrap();
@@ -63,7 +64,7 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
             };
 
             let section = match sections.get_mut(section_index).unwrap() {
-                Section::Tail(_) => return Ok(()),
+                Section::Tail(_) => break,
                 Section::Body(editable) => editable,
             };
 
@@ -71,14 +72,32 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
                 KeyCode::Char(c) => section.insert(c),
                 KeyCode::Left => section.move_left(),
                 KeyCode::Right => section.move_right(),
-                KeyCode::Enter => section_index += 1,
+                KeyCode::Enter => {
+                    section_index += 1;
+                    if let Section::Tail(_) = sections.get(section_index).unwrap() {
+                        break;
+                    }
+                }
                 KeyCode::Backspace => section.delete(),
+                KeyCode::Up => {
+                    section_index = if section_index > 0 {
+                        section_index - 1
+                    } else {
+                        0
+                    }
+                }
                 _ => (),
             }
         }
     }
 
-    execute!(stdout, cursor::DisableBlinking)?;
+    execute!(
+        stdout,
+        cursor::MoveTo(0, 0),
+        terminal::Clear(terminal::ClearType::FromCursorDown,),
+        Print("Copied to clipboard.")
+    )?;
+
     Ok(())
 }
 
