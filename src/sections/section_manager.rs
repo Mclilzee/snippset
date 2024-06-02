@@ -44,68 +44,65 @@ impl SectionManager {
     }
 
     pub fn start(&mut self) -> io::Result<()> {
+        let mut stdout = stdout();
+        print_title(title, &mut stdout)?;
+        let mut section_index = 0;
+        let mut sections = SectionManager::parse_content(snippet);
+
+        loop {
+            print_snippet(&sections, section_index, &mut stdout)?;
+            match read()? {
+                Event::Key(event) => {
+                    if event.kind != KeyEventKind::Press {
+                        continue;
+                    }
+
+                    if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c')
+                    {
+                        break;
+                    };
+
+                    let section = match sections.get_mut(section_index).unwrap() {
+                        Section::Tail(_) => break,
+                        Section::Body(editable) => editable,
+                    };
+
+                    match event.code {
+                        KeyCode::Char(c) => section.insert(c),
+                        KeyCode::Left => section.move_left(),
+                        KeyCode::Right => section.move_right(),
+                        KeyCode::Enter => {
+                            section.reset_cursor();
+                            section_index += 1;
+                        }
+                        KeyCode::Backspace => section.delete(),
+                        KeyCode::Esc => {
+                            section_index = if section_index > 0 {
+                                section_index - 1
+                            } else {
+                                0
+                            };
+                        }
+                        _ => (),
+                    }
+                }
+                Event::Resize(_, _) => {
+                    print_title(title, &mut stdout)?;
+                }
+                _ => (),
+            }
+        }
+
+        execute!(
+            stdout,
+            cursor::MoveTo(0, 0),
+            terminal::Clear(terminal::ClearType::FromCursorDown),
+            Print(sections.iter().map(|s| s.text()).collect::<String>())
+        )?;
+
         Ok(())
     }
 }
-
-// fn handle_input(title: &str, snippet: &str) -> io::Result<()> {
-//     let mut stdout = stdout();
-//     print_title(title, &mut stdout)?;
-//     let mut section_index = 0;
-//     let mut sections = SectionManager::parse_content(snippet);
-//
-//     loop {
-//         print_snippet(&sections, section_index, &mut stdout)?;
-//         match read()? {
-//             Event::Key(event) => {
-//                 if event.kind != KeyEventKind::Press {
-//                     continue;
-//                 }
-//
-//                 if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c') {
-//                     break;
-//                 };
-//
-//                 let section = match sections.get_mut(section_index).unwrap() {
-//                     Section::Tail(_) => break,
-//                     Section::Body(editable) => editable,
-//                 };
-//
-//                 match event.code {
-//                     KeyCode::Char(c) => section.insert(c),
-//                     KeyCode::Left => section.move_left(),
-//                     KeyCode::Right => section.move_right(),
-//                     KeyCode::Enter => {
-//                         section.reset_cursor();
-//                         section_index += 1;
-//                     }
-//                     KeyCode::Backspace => section.delete(),
-//                     KeyCode::Esc => {
-//                         section_index = if section_index > 0 {
-//                             section_index - 1
-//                         } else {
-//                             0
-//                         };
-//                     }
-//                     _ => (),
-//                 }
-//             }
-//             Event::Resize(_, _) => {
-//                 print_title(title, &mut stdout)?;
-//             }
-//             _ => (),
-//         }
-//     }
-//
-//     execute!(
-//         stdout,
-//         cursor::MoveTo(0, 0),
-//         terminal::Clear(terminal::ClearType::FromCursorDown),
-//         Print(sections.iter().map(|s| s.text()).collect::<String>())
-//     )?;
-//
-//     Ok(())
-// }
 
 #[cfg(test)]
 mod test {
