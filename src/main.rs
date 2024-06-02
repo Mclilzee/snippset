@@ -4,7 +4,6 @@ mod section;
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout};
 
-use copypasta::{ClipboardContext, ClipboardProvider};
 use crossterm::cursor;
 use crossterm::event::{KeyEventKind, KeyModifiers};
 use crossterm::style::Print;
@@ -16,7 +15,7 @@ use crossterm::{execute, terminal};
 use inquire::{InquireError, Select};
 use section::Section;
 
-const TITLE_HEIGHT: u16 = 3;
+const TITLE_HEIGHT: u16 = 5;
 
 fn main() -> Result<(), InquireError> {
     execute!(
@@ -52,38 +51,44 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
 
     loop {
         print_snippet(&sections, section_index, &mut stdout)?;
-        if let Event::Key(event) = read()? {
-            if event.kind != KeyEventKind::Press {
-                continue;
-            }
-
-            if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c') {
-                break;
-            };
-
-            let section = match sections.get_mut(section_index).unwrap() {
-                Section::Tail(_) => break,
-                Section::Body(editable) => editable,
-            };
-
-            match event.code {
-                KeyCode::Char(c) => section.insert(c),
-                KeyCode::Left => section.move_left(),
-                KeyCode::Right => section.move_right(),
-                KeyCode::Enter => {
-                    section.reset_cursor();
-                    section_index += 1;
+        match read()? {
+            Event::Key(event) => {
+                if event.kind != KeyEventKind::Press {
+                    continue;
                 }
-                KeyCode::Backspace => section.delete(),
-                KeyCode::Esc => {
-                    section_index = if section_index > 0 {
-                        section_index - 1
-                    } else {
-                        0
-                    };
+
+                if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c') {
+                    break;
+                };
+
+                let section = match sections.get_mut(section_index).unwrap() {
+                    Section::Tail(_) => break,
+                    Section::Body(editable) => editable,
+                };
+
+                match event.code {
+                    KeyCode::Char(c) => section.insert(c),
+                    KeyCode::Left => section.move_left(),
+                    KeyCode::Right => section.move_right(),
+                    KeyCode::Enter => {
+                        section.reset_cursor();
+                        section_index += 1;
+                    }
+                    KeyCode::Backspace => section.delete(),
+                    KeyCode::Esc => {
+                        section_index = if section_index > 0 {
+                            section_index - 1
+                        } else {
+                            0
+                        };
+                    }
+                    _ => (),
                 }
-                _ => (),
             }
+            Event::Resize(_, _) => {
+                print_title(title, &mut stdout)?;
+            }
+            _ => (),
         }
     }
 
@@ -104,21 +109,18 @@ fn print_snippet(sections: &[Section], sec_index: usize, stdout: &mut Stdout) ->
 
     for (index, section) in sections.iter().enumerate() {
         text += &section.text();
-        match section {
-            Section::Body(ed) => {
-                let (ed_col, ed_row) = ed.terminal_cursor_position();
-                if index > sec_index {
-                    continue;
-                }
-
-                if ed_row > 0 {
-                    row += ed_row;
-                    column = ed_col;
-                } else {
-                    column += ed_col;
-                }
+        if let Section::Body(ed) = section {
+            let (ed_col, ed_row) = ed.terminal_cursor_position();
+            if index > sec_index {
+                continue;
             }
-            Section::Tail(str) => {}
+
+            if ed_row > 0 {
+                row += ed_row;
+                column = ed_col;
+            } else {
+                column += ed_col;
+            }
         }
     }
 
@@ -142,6 +144,12 @@ fn print_title(title: &str, stdout: &mut Stdout) -> io::Result<()> {
         cursor::MoveTo(0, 0),
         terminal::Clear(terminal::ClearType::FromCursorDown),
         Print(format!("Snippet: {title}\r")),
+        cursor::MoveDown(1),
+        Print("--------------------------------------\r"),
+        cursor::MoveDown(1),
+        Print(
+            "Keys: Enter for next section, Esc for prev, Arrow keys to move between characters\r"
+        ),
         cursor::MoveDown(1),
         Print("--------------------------------------\r"),
     )?;
