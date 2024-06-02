@@ -4,6 +4,7 @@ mod section;
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout};
 
+use copypasta::{ClipboardContext, ClipboardProvider};
 use crossterm::cursor;
 use crossterm::event::{KeyEventKind, KeyModifiers};
 use crossterm::style::Print;
@@ -56,9 +57,7 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
                 continue;
             }
 
-            if event.code == KeyCode::Esc
-                || (event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c'))
-            {
+            if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c') {
                 break;
             };
 
@@ -79,7 +78,7 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
                     }
                 }
                 KeyCode::Backspace => section.delete(),
-                KeyCode::Up => {
+                KeyCode::Esc => {
                     section_index = if section_index > 0 {
                         section_index - 1
                     } else {
@@ -91,11 +90,16 @@ fn handle_snippet(title: &str, snippet: &str) -> io::Result<()> {
         }
     }
 
+    let mut clipboard = ClipboardContext::new().unwrap();
+    clipboard
+        .set_contents(sections.iter().map(|s| s.text()).collect())
+        .unwrap();
+
     execute!(
         stdout,
         cursor::MoveTo(0, 0),
-        terminal::Clear(terminal::ClearType::FromCursorDown,),
-        Print("Copied to clipboard.")
+        terminal::Clear(terminal::ClearType::FromCursorDown),
+        Print(clipboard.get_contents().unwrap())
     )?;
 
     Ok(())
