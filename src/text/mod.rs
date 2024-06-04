@@ -1,5 +1,6 @@
 pub mod editable_text;
 
+#[derive(Debug, PartialEq)]
 pub struct TextRange {
     cursor_position: Option<(u16, u16)>,
     start: (u16, u16),

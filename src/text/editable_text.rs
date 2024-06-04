@@ -56,6 +56,8 @@ impl EditableText {
 
 #[cfg(test)]
 mod test {
+    use crate::text::TextRange;
+
     use super::EditableText;
 
     #[test]
@@ -67,8 +69,8 @@ mod test {
     #[test]
     fn return_correct_text() {
         let editable = create_editable("world");
-        let range = TextRange();
-        assert_eq!("hello world".to_owned(), editable.text());
+        let range = TextRange::new((0, 0), "world".to_owned(), Some((0, 5)));
+        assert_eq!(range, editable.text_range());
     }
 
     #[test]
