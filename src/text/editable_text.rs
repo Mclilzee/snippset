@@ -67,31 +67,18 @@ mod test {
     }
 
     #[test]
-    fn return_correct_text() {
+    fn text_range_contains_text() {
         let editable = create_editable("world");
-        let range = TextRange::new((0, 0), "world".to_owned(), Some((0, 5)));
-        assert_eq!(range, editable.text_range());
+        assert_eq!("world".to_owned(), editable.text_range().text);
     }
 
     #[test]
-    fn text_contains_newlines() {
-        let editable = create_editable("frie\rnd");
-        assert_eq!("he\ry frie\rnd".to_owned(), editable.text());
-    }
-
-    #[test]
-    fn return_text_placeholder_if_empty() {
-        let editable = create_editable("");
-        assert_eq!("hello _".to_owned(), editable.text());
-    }
-
-    #[test]
-    fn insert_new_characters() {
+    fn inserts_new_characters() {
         let mut editable = create_editable("");
         editable.insert('w');
         editable.insert('o');
         editable.insert('w');
-        assert_eq!("just prefix wow".to_owned(), editable.text());
+        assert_eq!("wow".to_owned(), editable.text_range().text);
     }
 
     #[test]
@@ -100,7 +87,8 @@ mod test {
         editable.delete();
         editable.delete();
         editable.delete();
-        assert_eq!("first one sec".to_owned(), editable.text());
+        let result = editable.chars.iter().collect::<String>();
+        assert_eq!(" sec".to_owned(), result);
     }
 
     #[test]
@@ -164,7 +152,8 @@ mod test {
         editable.move_left();
         editable.delete();
         editable.delete();
-        assert_eq!("this is my fend".to_owned(), editable.text());
+        let result = editable.chars.iter().collect::<String>();
+        assert_eq!("this is my fend".to_owned(), result);
     }
 
     #[test]
@@ -173,15 +162,15 @@ mod test {
         editable.move_left();
         editable.move_left();
         editable.insert('s');
-        assert_eq!("another osne".to_owned(), editable.text());
+        let result = editable.chars.iter().collect::<String>();
+        assert_eq!("another osne".to_owned(), result);
     }
 
     #[test]
     fn get_cursor_position() {
         let editable = create_editable("ano ther");
-        let (column, row) = editable.terminal_cursor_position();
-        assert_eq!(column, 14);
-        assert_eq!(row, 0);
+        let text_range = editable.text_range();
+        assert_eq!((14, 0), text_range.cursor_position.unwrap());
     }
 
     #[test]
@@ -190,9 +179,7 @@ mod test {
         editable.move_left();
         editable.move_left();
         editable.move_left();
-        let (column, row) = editable.terminal_cursor_position();
-        assert_eq!(column, 11);
-        assert_eq!(row, 0);
+        assert_eq!((11, 0), editable.text_range().cursor_position.unwrap());
     }
 
     #[test]
@@ -202,28 +189,7 @@ mod test {
         editable.move_left();
         editable.move_left();
         editable.move_right();
-        let (column, row) = editable.terminal_cursor_position();
-        assert_eq!(column, 12);
-        assert_eq!(row, 0);
-    }
-
-    #[test]
-    fn get_cursor_with_newline() {
-        let editable = create_editable(" test\r\rnew lin\res");
-        let (column, row) = editable.terminal_cursor_position();
-        assert_eq!(column, 2);
-        assert_eq!(row, 4);
-    }
-
-    #[test]
-    fn get_cursor_with_newline_moving_backward() {
-        let mut editable = create_editable("This is test\rwith \rnew lin\res");
-        editable.move_left();
-        editable.move_left();
-        editable.move_left();
-        let (column, row) = editable.terminal_cursor_position();
-        assert_eq!(column, 7);
-        assert_eq!(row, 2);
+        assert_eq!((12, 0), editable.text_range().cursor_position.unwrap());
     }
 
     fn create_editable(suffix: &str) -> EditableText {

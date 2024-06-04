@@ -2,10 +2,10 @@ pub mod editable_text;
 
 #[derive(Debug, PartialEq)]
 pub struct TextRange {
-    cursor_position: Option<(u16, u16)>,
-    start: (u16, u16),
-    end: (u16, u16),
-    text: String,
+    pub cursor_position: Option<(u16, u16)>,
+    pub start: (u16, u16),
+    pub end: (u16, u16),
+    pub text: String,
 }
 
 impl TextRange {
