@@ -32,7 +32,7 @@ impl SectionManager {
             if let Some(c) = prefix.last() {
                 if c == &'{' {
                     prefix.pop();
-                    sections.push(Section::editable(prefix.iter().collect()));
+                    sections.push(Section::body(prefix.iter().collect()));
                     prefix = Vec::new();
                 } else {
                     prefix.push(*c);
@@ -91,15 +91,15 @@ impl SectionManager {
         //         }
         //         _ => (),
         //     }
-        }
+        // }
 
-        execute!(
-            stdout,
-            cursor::MoveTo(0, 0),
-            terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(sections.iter().map(|s| s.text()).collect::<String>())
-        )?;
-
+        //     execute!(
+        //         stdout,
+        //         cursor::MoveTo(0, 0),
+        //         terminal::Clear(terminal::ClearType::FromCursorDown),
+        //         Print(sections.iter().map(|s| s.text()).collect::<String>())
+        //     )?;
+        //
         Ok(())
     }
 }
@@ -128,7 +128,7 @@ mod test {
         assert_eq!(2, manager.sections.len());
         let first = manager.sections.first().unwrap();
         let tail = manager.sections.get(2).unwrap();
-        assert_eq!(first, &Section::editable("Content ".to_owned()));
+        assert_eq!(first, &Section::body("Content ".to_owned()));
         assert_eq!(tail, &Section::tail("".to_owned()));
     }
 
@@ -138,8 +138,8 @@ mod test {
         let first = manager.sections.first().unwrap();
         let second = manager.sections.get(1).unwrap();
         let tail = manager.sections.get(2).unwrap();
-        assert_eq!(first, &Section::editable("Hello content ".to_owned()));
-        assert_eq!(second, &Section::editable(", another".to_owned()));
+        assert_eq!(first, &Section::body("Hello content ".to_owned()));
+        assert_eq!(second, &Section::body(", another".to_owned()));
         assert_eq!(tail, &Section::tail(" tail moving forward.".to_owned()));
     }
 }

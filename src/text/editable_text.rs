@@ -1,9 +1,19 @@
-use super::TextRange;
+use super::{TerminalText, TextRange};
 
 #[derive(Debug, PartialEq)]
 pub struct EditableText {
     cursor: usize,
     chars: Vec<char>,
+}
+
+impl TerminalText for EditableText {
+    fn chars(&self) -> &Vec<char> {
+        &self.chars
+    }
+
+    fn cursor(&self) -> Option<usize> {
+        Some(self.cursor)
+    }
 }
 
 impl EditableText {
@@ -41,24 +51,12 @@ impl EditableText {
     pub fn reset_cursor(&mut self) {
         self.cursor = self.chars.len();
     }
-
-    pub fn text_range(&self) -> TextRange {
-        let str = self.chars.iter().collect();
-        let end_position = self.chars.len() as u16;
-
-        TextRange::new(
-            (end_position, 0),
-            str,
-            Some((end_position - self.cursor as u16, 0)),
-        )
-    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::text::TextRange;
-
     use super::EditableText;
+    use super::TerminalText;
 
     #[test]
     fn initalize_correctly() {

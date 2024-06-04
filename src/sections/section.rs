@@ -1,21 +1,8 @@
-use crate::sections::editable_text::EditableText;
-
-use super::text_range::TextRange;
-
-pub struct Body {
-    text: Editable,
-    range: TextRange,
-}
-
-pub struct Tail {
-    text: String,
-    range: TextRange,
-}
+use crate::text::{editable_text::EditableText, TerminalText};
 
 #[derive(Debug, PartialEq)]
-pub enum Section {
-    Body(Editable),
-    Tail(String),
+pub struct Section {
+    text: TerminalText,
 }
 
 impl Section {
@@ -23,8 +10,10 @@ impl Section {
         Section::Tail(prefix)
     }
 
-    pub fn editable(prefix: String) -> Self {
-        Section::Body(Editable::new(prefix))
+    pub fn body(prefix: String) -> Self {
+        Section {
+            EditableText::new()
+        }
     }
 
     pub fn text(&self) -> String {
@@ -47,7 +36,7 @@ mod test {
 
     #[test]
     fn get_full_text_editable() {
-        let mut section = Section::editable("Hello this ".to_string());
+        let mut section = Section::body("Hello this ".to_string());
         fill_editable_suffix(&mut section, "suffix here");
         assert_eq!(section.text(), "Hello this suffix here".to_owned());
     }
