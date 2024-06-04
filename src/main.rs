@@ -1,5 +1,5 @@
 mod sections;
-mod terminal_text;
+mod text;
 
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout};
@@ -42,42 +42,6 @@ fn main() -> Result<(), InquireError> {
     }
 
     disable_raw_mode()?;
-    Ok(())
-}
-
-fn print_snippet(sections: &[Section], sec_index: usize, stdout: &mut Stdout) -> io::Result<()> {
-    let mut text = String::new();
-    let mut column = 0;
-    let mut row = TITLE_HEIGHT;
-
-    for (index, section) in sections.iter().enumerate() {
-        text += &section.text();
-        if let Section::Body(ed) = section {
-            let (ed_col, ed_row) = ed.terminal_cursor_position();
-            if index > sec_index {
-                continue;
-            }
-
-            if ed_row > 0 {
-                row += ed_row;
-                column = ed_col;
-            } else {
-                column += ed_col;
-            }
-        }
-    }
-
-    row += column / terminal::size()?.0;
-    column %= terminal::size()?.0;
-
-    execute!(
-        stdout,
-        cursor::MoveTo(0, TITLE_HEIGHT),
-        terminal::Clear(terminal::ClearType::FromCursorDown),
-        Print(text),
-        cursor::MoveTo(column, row)
-    )?;
-
     Ok(())
 }
 

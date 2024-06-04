@@ -1,6 +1,5 @@
 pub mod editable_text;
 pub mod static_text;
-pub mod terminal_text;
 
 #[derive(Debug, PartialEq)]
 pub struct TextRange {
