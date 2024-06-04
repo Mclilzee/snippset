@@ -1,7 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub struct Editable {
     cursor: usize,
-    prefix: String,
     suffix: Vec<char>,
 }
 
@@ -79,6 +78,11 @@ impl Editable {
 
         (column, row)
     }
+}
+
+pub struct StaticText {
+    text: String,
+    range: TextRange,
 }
 
 #[cfg(test)]

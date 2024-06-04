@@ -1,4 +1,16 @@
-use crate::sections::editable::Editable;
+use crate::sections::editable_text::EditableText;
+
+use super::text_range::TextRange;
+
+pub struct Body {
+    text: Editable,
+    range: TextRange,
+}
+
+pub struct Tail {
+    text: String,
+    range: TextRange,
+}
 
 #[derive(Debug, PartialEq)]
 pub enum Section {
