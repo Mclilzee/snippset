@@ -1,4 +1,4 @@
-use super::{TerminalText, TextRange};
+use super::TerminalText;
 
 #[derive(Debug, PartialEq)]
 pub struct EditableText {
@@ -65,9 +65,10 @@ mod test {
     }
 
     #[test]
-    fn text_range_contains_text() {
+    fn return_correct_chars() {
         let editable = create_editable("world");
-        assert_eq!("world".to_owned(), editable.text_range().text);
+        let result = editable.chars().iter().collect::<String>();
+        assert_eq!("world".to_owned(), result);
     }
 
     #[test]
@@ -76,7 +77,8 @@ mod test {
         editable.insert('w');
         editable.insert('o');
         editable.insert('w');
-        assert_eq!("wow".to_owned(), editable.text_range().text);
+        let result = editable.chars.iter().collect::<String>();
+        assert_eq!("wow".to_owned(), result);
     }
 
     #[test]
@@ -162,32 +164,6 @@ mod test {
         editable.insert('s');
         let result = editable.chars.iter().collect::<String>();
         assert_eq!("another osne".to_owned(), result);
-    }
-
-    #[test]
-    fn get_cursor_position() {
-        let editable = create_editable("ano ther");
-        let text_range = editable.text_range();
-        assert_eq!((14, 0), text_range.cursor_position.unwrap());
-    }
-
-    #[test]
-    fn get_cursor_after_moving() {
-        let mut editable = create_editable("ano ther");
-        editable.move_left();
-        editable.move_left();
-        editable.move_left();
-        assert_eq!((11, 0), editable.text_range().cursor_position.unwrap());
-    }
-
-    #[test]
-    fn get_cursor_after_moving_forward() {
-        let mut editable = create_editable("ano ther");
-        editable.move_left();
-        editable.move_left();
-        editable.move_left();
-        editable.move_right();
-        assert_eq!((12, 0), editable.text_range().cursor_position.unwrap());
     }
 
     fn create_editable(suffix: &str) -> EditableText {

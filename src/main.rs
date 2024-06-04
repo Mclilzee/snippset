@@ -1,5 +1,5 @@
 mod sections;
-mod text;
+mod terminal_text;
 
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout};
