@@ -1,3 +1,5 @@
+use super::TextRange;
+
 #[derive(Debug, PartialEq)]
 pub struct EditableText {
     cursor: usize,
@@ -40,10 +42,15 @@ impl EditableText {
         self.cursor = self.chars.len();
     }
 
-    pub fn text(&self) -> String {
-        let suffix = self.chars.iter().collect::<String>();
-        let suffix = if suffix.is_empty() { "_" } else { &suffix };
-        format!("{}{}", self.prefix, suffix)
+    pub fn text_range(&self) -> TextRange {
+        let str = self.chars.iter().collect();
+        let end_position = self.chars.len() as u16;
+
+        TextRange::new(
+            (end_position, 0),
+            str,
+            Some((end_position - self.cursor as u16, 0)),
+        )
     }
 }
 
