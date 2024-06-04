@@ -1,34 +1,27 @@
 #[derive(Debug, PartialEq)]
-pub struct Editable {
+pub struct EditableText {
     cursor: usize,
-    suffix: Vec<char>,
+    chars: Vec<char>,
 }
 
-impl Editable {
-    pub fn new(prefix: String) -> Self {
-        Editable {
+impl EditableText {
+    pub fn new() -> Self {
+        EditableText {
             cursor: 0,
-            prefix,
-            suffix: Vec::new(),
+            chars: Vec::new(),
         }
     }
 
     pub fn insert(&mut self, c: char) {
         self.cursor += 1;
-        self.suffix.insert(self.cursor - 1, c);
+        self.chars.insert(self.cursor - 1, c);
     }
 
     pub fn delete(&mut self) {
         if self.cursor > 0 {
-            self.suffix.remove(self.cursor - 1);
+            self.chars.remove(self.cursor - 1);
             self.cursor -= 1;
         }
-    }
-
-    pub fn text(&self) -> String {
-        let suffix = self.suffix.iter().collect::<String>();
-        let suffix = if suffix.is_empty() { "_" } else { &suffix };
-        format!("{}{}", self.prefix, suffix)
     }
 
     pub fn move_left(&mut self) {
@@ -38,56 +31,25 @@ impl Editable {
     }
 
     pub fn move_right(&mut self) {
-        if self.cursor < self.suffix.len() {
+        if self.cursor < self.chars.len() {
             self.cursor += 1;
         }
     }
 
     pub fn reset_cursor(&mut self) {
-        self.cursor = self.suffix.len();
+        self.cursor = self.chars.len();
     }
 
-    fn prefix_cursor_end(&self) -> (u16, u16) {
-        let mut column = 0;
-        let mut row = 0;
-        self.prefix.chars().for_each(|c| {
-            column += 1;
-            if c == '\r' {
-                row += 1;
-                column = 0;
-            }
-        });
-
-        (column, row)
+    pub fn text(&self) -> String {
+        let suffix = self.chars.iter().collect::<String>();
+        let suffix = if suffix.is_empty() { "_" } else { &suffix };
+        format!("{}{}", self.prefix, suffix)
     }
-
-    pub fn terminal_cursor_position(&self) -> (u16, u16) {
-        let (mut column, mut row) = self.prefix_cursor_end();
-        self.suffix
-            .iter()
-            .enumerate()
-            .take_while(|(i, _)| i < &self.cursor)
-            .map(|(_, c)| c)
-            .for_each(|c| {
-                column += 1;
-                if c == &'\r' {
-                    row += 1;
-                    column = 0;
-                }
-            });
-
-        (column, row)
-    }
-}
-
-pub struct StaticText {
-    text: String,
-    range: TextRange,
 }
 
 #[cfg(test)]
 mod test {
-    use super::Editable;
+    use super::EditableText;
 
     #[test]
     fn initalize_correctly() {

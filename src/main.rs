@@ -1,4 +1,5 @@
 mod sections;
+mod text;
 
 use std::collections::HashMap;
 use std::io::{self, stdout, Stdout};
