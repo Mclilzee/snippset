@@ -133,17 +133,17 @@ mod test {
         editable.delete();
         editable.delete();
         let result = editable.chars.iter().collect::<String>();
-        assert_eq!("this is my fend".to_owned(), result);
+        assert_eq!("my fend".to_owned(), result);
     }
 
     #[test]
     fn insert_at_cursor_position() {
-        let mut editable = create_editable(" one");
+        let mut editable = create_editable("one");
         editable.move_left();
         editable.move_left();
         editable.insert('s');
         let result = editable.chars.iter().collect::<String>();
-        assert_eq!("another osne".to_owned(), result);
+        assert_eq!("osne".to_owned(), result);
     }
 
     fn create_editable(suffix: &str) -> EditableText {
