@@ -37,7 +37,7 @@ impl Section {
         ));
     }
 
-    fn chars(&self) -> &Vec<char> {
+    pub fn chars(&self) -> &Vec<char> {
         match self {
             Self::Editable(ed) => &ed.chars,
             Self::StaticText(text) => &text.chars,

@@ -1,6 +1,4 @@
 use std::{
-    borrow::BorrowMut,
-    cell::{RefCell, RefMut},
     io::{self, stdout, Stdout},
     rc::Rc,
 };
@@ -20,29 +18,21 @@ use super::section::Section;
 pub struct SectionManager {
     stdout: Stdout,
     title: String,
-    sections: Vec<Rc<Section>>,
-    active: Option<Rc<Section>>,
+    sections: Vec<Section>,
+    active_index: usize,
 }
 
 impl SectionManager {
     pub fn new(title: &str, snippet: &str) -> Self {
-        let sections = SectionManager::parse_content(snippet);
-        let active = sections
-            .iter()
-            .filter(|s| s.is_editable())
-            .take(1)
-            .map(|r| Rc::clone(r))
-            .next();
-
         SectionManager {
-            sections,
-            active,
+            sections: SectionManager::parse_content(snippet),
+            active_index: 0,
             stdout: stdout(),
             title: title.to_owned(),
         }
     }
 
-    fn parse_content(content: &str) -> Vec<Rc<Section>> {
+    fn parse_content(content: &str) -> Vec<Section> {
         let chars = content.chars().collect::<Vec<char>>();
         let mut sections = Vec::new();
         let mut static_txt = Vec::new();
@@ -55,8 +45,8 @@ impl SectionManager {
             if let Some(c) = static_txt.last() {
                 if c == &'{' {
                     static_txt.pop();
-                    sections.push(Rc::new(Section::static_text(static_txt)));
-                    sections.push(Rc::new(Section::editable()));
+                    sections.push(Section::static_text(static_txt));
+                    sections.push(Section::editable());
                     static_txt = Vec::new();
                 } else {
                     static_txt.push(*c);
@@ -64,7 +54,7 @@ impl SectionManager {
             }
         }
 
-        sections.push(Rc::new(Section::static_text(static_txt)));
+        sections.push(Section::static_text(static_txt));
         sections
     }
 
@@ -74,7 +64,7 @@ impl SectionManager {
         self.print_title()?;
 
         loop {
-            self.print_snippet()?;
+            // self.print_snippet()?;
             match read()? {
                 Event::Key(event) => {
                     if event.kind != KeyEventKind::Press {
@@ -86,20 +76,38 @@ impl SectionManager {
                         break;
                     };
 
-                    let section = self.get_next_active_editable();
+                    let mut section = self.get_active_section();
 
                     match event.code {
-                        KeyCode::Char(c) => section.insert(c),
-                        KeyCode::Left => section.move_left(),
-                        KeyCode::Right => section.move_right(),
-                        KeyCode::Enter => {
-                            section.reset_cursor();
-                            section_index += 1;
+                        KeyCode::Char(c) => {
+                            if let Some(s) = section.as_mut() {
+                                s.insert(c);
+                            }
                         }
-                        KeyCode::Backspace => section.delete(),
+                        KeyCode::Left => {
+                            if let Some(s) = section {
+                                s.move_left();
+                            }
+                        }
+                        KeyCode::Right => {
+                            if let Some(s) = section {
+                                s.move_right();
+                            }
+                        }
+                        KeyCode::Backspace => {
+                            if let Some(s) = section {
+                                s.delete();
+                            }
+                        }
+                        KeyCode::Enter => {
+                            if let Some(s) = section {
+                                s.reset_cursor();
+                                self.active_index += 1;
+                            }
+                        }
                         KeyCode::Esc => {
-                            section_index = if section_index > 0 {
-                                section_index - 1
+                            self.active_index = if self.active_index > 0 {
+                                self.active_index - 1
                             } else {
                                 0
                             };
@@ -119,7 +127,12 @@ impl SectionManager {
             stdout,
             cursor::MoveTo(0, 0),
             terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(sections.iter().map(|s| s.text()).collect::<String>())
+            Print(
+                self.sections
+                    .iter()
+                    .flat_map(|s| s.chars())
+                    .collect::<String>()
+            )
         )?;
 
         terminal::disable_raw_mode()?;
@@ -139,21 +152,17 @@ impl SectionManager {
         Ok(())
     }
 
-    fn get_next_active_editable(&mut self) -> Option<&mut EditableText> {
-        let mut section = self
+    fn get_active_section(&mut self) -> Option<&mut EditableText> {
+        let sec = self
             .sections
-            .iter()
+            .iter_mut()
             .filter(|s| s.is_editable())
-            .skip(self.editable_index)
-            .next();
+            .nth(self.active_index);
 
-        if let Some(section) = section.as_mut() {
-            if let Section::Editable(mut ed) = section {
-                return Some(&mut ed);
-            }
+        match sec? {
+            Section::Editable(ref mut ed) => Some(ed),
+            Section::StaticText(_) => None,
         }
-
-        None
     }
 }
 
