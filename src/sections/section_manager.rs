@@ -1,4 +1,9 @@
-use std::io::{self, stdout, Stdout};
+use std::{
+    borrow::BorrowMut,
+    cell::{RefCell, RefMut},
+    io::{self, stdout, Stdout},
+    rc::Rc,
+};
 
 use crossterm::{
     cursor,
@@ -8,47 +13,58 @@ use crossterm::{
     terminal,
 };
 
+use crate::text::text::EditableText;
+
 use super::section::Section;
 
 pub struct SectionManager {
-    editable_index: usize,
     stdout: Stdout,
     title: String,
-    sections: Vec<Section>,
+    sections: Vec<RefCell<Section>>,
+    active: Option<RefMut<Section>>,
 }
 
 impl SectionManager {
     pub fn new(title: &str, snippet: &str) -> Self {
+        let sections = SectionManager::parse_content(snippet);
+        let active = sections
+            .iter()
+            .map(|rc| rc.borrow_mut())
+            .filter(|s| s.is_editable())
+            .take(1)
+            .next();
+
         SectionManager {
-            editable_index: 0,
+            sections,
+            active,
             stdout: stdout(),
-            sections: SectionManager::parse_content(snippet),
             title: title.to_owned(),
         }
     }
 
-    fn parse_content(content: &str) -> Vec<Section> {
+    fn parse_content(content: &str) -> Vec<RefCell<Section>> {
         let chars = content.chars().collect::<Vec<char>>();
         let mut sections = Vec::new();
-        let mut prefix = Vec::new();
+        let mut static_txt = Vec::new();
         for c in chars {
             if c != '}' {
-                prefix.push(c);
+                static_txt.push(c);
                 continue;
             }
 
-            if let Some(c) = prefix.last() {
+            if let Some(c) = static_txt.last() {
                 if c == &'{' {
-                    prefix.pop();
-                    sections.push(Section::static_text(prefix));
-                    sections.push(Section::editable());
-                    prefix = Vec::new();
+                    static_txt.pop();
+                    sections.push(RefCell::new(Section::static_text(static_txt)));
+                    sections.push(RefCell::new(Section::editable()));
+                    static_txt = Vec::new();
                 } else {
-                    prefix.push(*c);
+                    static_txt.push(*c);
                 }
             }
         }
-        sections.push(Section::static_text(prefix));
+
+        sections.push(RefCell::new(Section::static_text(static_txt)));
         sections
     }
 
@@ -123,12 +139,21 @@ impl SectionManager {
         Ok(())
     }
 
-    fn get_next_active_editable(&mut self) -> Option<&Section> {
-        self.sections
+    fn get_next_active_editable(&mut self) -> Option<&mut EditableText> {
+        let mut section = self
+            .sections
             .iter()
             .filter(|s| s.is_editable())
             .skip(self.editable_index)
-            .next()
+            .next();
+
+        if let Some(section) = section.as_mut() {
+            if let Section::Editable(mut ed) = section {
+                return Some(&mut ed);
+            }
+        }
+
+        None
     }
 }
 
