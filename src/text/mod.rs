@@ -1,2 +1,1 @@
-pub mod editable_text;
-pub mod static_text;
+pub mod text;
