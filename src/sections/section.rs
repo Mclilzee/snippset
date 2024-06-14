@@ -1,4 +1,4 @@
-use crate::text::{editable_text::EditableText, static_text::StaticText, TextRange};
+use crate::text::{editable_text::EditableText, static_text::StaticText};
 
 #[derive(Debug, PartialEq)]
 pub enum Section {
