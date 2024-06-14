@@ -1,7 +1,4 @@
-use std::{
-    io::{self, stdout, Stdout},
-    rc::Rc,
-};
+use std::io::{self, stdout, Stdout};
 
 use crossterm::{
     cursor,
@@ -60,11 +57,10 @@ impl SectionManager {
 
     pub fn start(&mut self) -> io::Result<()> {
         terminal::enable_raw_mode()?;
-        let mut stdout = stdout();
         self.print_title()?;
 
         loop {
-            // self.print_snippet()?;
+            self.print_snippet()?;
             match read()? {
                 Event::Key(event) => {
                     if event.kind != KeyEventKind::Press {
@@ -76,27 +72,29 @@ impl SectionManager {
                         break;
                     };
 
-                    let mut section = self.get_active_section();
-                    if let Some(s) = section.as_mut() {
-                        match event.code {
-                            KeyCode::Char(c) => s.insert(c),
-                            KeyCode::Left => s.move_left(),
-                            KeyCode::Right => s.move_right(),
-                            KeyCode::Backspace => s.delete(),
-                            KeyCode::Enter => {
-                                s.reset_cursor();
-                                self.active_index += 1;
-                            }
-                            _ => (),
-                        }
-                    }
-                    if let KeyCode::Esc = event.code {
-                        self.active_index = if self.active_index > 0 {
-                            self.active_index - 1
-                        } else {
-                            0
-                        };
+                    let section = match self.get_active_section() {
+                        Some(s) => s,
+                        None => break,
                     };
+
+                    match event.code {
+                        KeyCode::Char(c) => section.insert(c),
+                        KeyCode::Left => section.move_left(),
+                        KeyCode::Right => section.move_right(),
+                        KeyCode::Backspace => section.delete(),
+                        KeyCode::Enter => {
+                            section.reset_cursor();
+                            self.active_index += 1;
+                        }
+                        KeyCode::Esc => {
+                            self.active_index = if self.active_index > 0 {
+                                self.active_index - 1
+                            } else {
+                                0
+                            };
+                        }
+                        _ => (),
+                    }
                 }
 
                 Event::Resize(_, _) => {
@@ -105,18 +103,6 @@ impl SectionManager {
                 _ => (),
             }
         }
-
-        execute!(
-            stdout,
-            cursor::MoveTo(0, 0),
-            terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(
-                self.sections
-                    .iter()
-                    .flat_map(|s| s.chars())
-                    .collect::<String>()
-            )
-        )?;
 
         terminal::disable_raw_mode()?;
         Ok(())
@@ -146,6 +132,22 @@ impl SectionManager {
             Section::Editable(ref mut ed) => Some(ed),
             Section::StaticText(_) => None,
         }
+    }
+
+    fn print_snippet(&self) -> io::Result<()> {
+        execute!(
+            &self.stdout,
+            cursor::MoveTo(0, 0),
+            terminal::Clear(terminal::ClearType::FromCursorDown),
+            Print(
+                self.sections
+                    .iter()
+                    .flat_map(|s| s.chars())
+                    .collect::<String>()
+            )
+        )?;
+
+        Ok(())
     }
 }
 
