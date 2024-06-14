@@ -77,43 +77,26 @@ impl SectionManager {
                     };
 
                     let mut section = self.get_active_section();
-
-                    match event.code {
-                        KeyCode::Char(c) => {
-                            if let Some(s) = section.as_mut() {
-                                s.insert(c);
-                            }
-                        }
-                        KeyCode::Left => {
-                            if let Some(s) = section {
-                                s.move_left();
-                            }
-                        }
-                        KeyCode::Right => {
-                            if let Some(s) = section {
-                                s.move_right();
-                            }
-                        }
-                        KeyCode::Backspace => {
-                            if let Some(s) = section {
-                                s.delete();
-                            }
-                        }
-                        KeyCode::Enter => {
-                            if let Some(s) = section {
+                    if let Some(s) = section.as_mut() {
+                        match event.code {
+                            KeyCode::Char(c) => s.insert(c),
+                            KeyCode::Left => s.move_left(),
+                            KeyCode::Right => s.move_right(),
+                            KeyCode::Backspace => s.delete(),
+                            KeyCode::Enter => {
                                 s.reset_cursor();
                                 self.active_index += 1;
                             }
+                            _ => (),
                         }
-                        KeyCode::Esc => {
-                            self.active_index = if self.active_index > 0 {
-                                self.active_index - 1
-                            } else {
-                                0
-                            };
-                        }
-                        _ => (),
                     }
+                    if let KeyCode::Esc = event.code {
+                        self.active_index = if self.active_index > 0 {
+                            self.active_index - 1
+                        } else {
+                            0
+                        };
+                    };
                 }
 
                 Event::Resize(_, _) => {
