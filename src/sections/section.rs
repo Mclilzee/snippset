@@ -1,3 +1,5 @@
+use std::io;
+
 use crate::text::{text::EditableText, text::StaticText};
 
 #[derive(Debug, PartialEq)]
@@ -13,6 +15,26 @@ impl Section {
 
     pub fn static_text(chars: Vec<char>) -> Self {
         Self::StaticText(StaticText::new(chars))
+    }
+
+    pub fn is_editable(&self) -> bool {
+        if let Section::Editable(_) = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn insert(&mut self, c: char) -> io::Result<()> {
+        if let Section::Editable(ed) = self {
+            ed.insert(c);
+            return Ok(());
+        }
+
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Inserting into static text",
+        ));
     }
 
     fn chars(&self) -> &Vec<char> {

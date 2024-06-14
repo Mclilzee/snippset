@@ -1,9 +1,17 @@
 use std::io::{self, stdout, Stdout};
 
+use crossterm::{
+    cursor,
+    event::{read, Event, KeyCode, KeyEventKind, KeyModifiers},
+    execute,
+    style::Print,
+    terminal,
+};
+
 use super::section::Section;
 
 pub struct SectionManager {
-    editable_section: usize,
+    editable_index: usize,
     stdout: Stdout,
     title: String,
     sections: Vec<Section>,
@@ -12,7 +20,7 @@ pub struct SectionManager {
 impl SectionManager {
     pub fn new(title: &str, snippet: &str) -> Self {
         SectionManager {
-            editable_section: 0,
+            editable_index: 0,
             stdout: stdout(),
             sections: SectionManager::parse_content(snippet),
             title: title.to_owned(),
@@ -45,63 +53,82 @@ impl SectionManager {
     }
 
     pub fn start(&mut self) -> io::Result<()> {
+        terminal::enable_raw_mode()?;
         let mut stdout = stdout();
-        // print_title(title, &mut stdout)?;
-        // let mut section_index = 0;
-        // let mut sections = SectionManager::parse_content(snippet);
-        //
-        // loop {
-        //     print_snippet(&sections, section_index, &mut stdout)?;
-        //     match read()? {
-        //         Event::Key(event) => {
-        //             if event.kind != KeyEventKind::Press {
-        //                 continue;
-        //             }
-        //
-        //             if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c')
-        //             {
-        //                 break;
-        //             };
-        //
-        //             let section = match sections.get_mut(section_index).unwrap() {
-        //                 Section::Tail(_) => break,
-        //                 Section::Body(editable) => editable,
-        //             };
-        //
-        //             match event.code {
-        //                 KeyCode::Char(c) => section.insert(c),
-        //                 KeyCode::Left => section.move_left(),
-        //                 KeyCode::Right => section.move_right(),
-        //                 KeyCode::Enter => {
-        //                     section.reset_cursor();
-        //                     section_index += 1;
-        //                 }
-        //                 KeyCode::Backspace => section.delete(),
-        //                 KeyCode::Esc => {
-        //                     section_index = if section_index > 0 {
-        //                         section_index - 1
-        //                     } else {
-        //                         0
-        //                     };
-        //                 }
-        //                 _ => (),
-        //             }
-        //         }
-        //         Event::Resize(_, _) => {
-        //             print_title(title, &mut stdout)?;
-        //         }
-        //         _ => (),
-        //     }
-        // }
+        self.print_title()?;
 
-        //     execute!(
-        //         stdout,
-        //         cursor::MoveTo(0, 0),
-        //         terminal::Clear(terminal::ClearType::FromCursorDown),
-        //         Print(sections.iter().map(|s| s.text()).collect::<String>())
-        //     )?;
-        //
+        loop {
+            self.print_snippet()?;
+            match read()? {
+                Event::Key(event) => {
+                    if event.kind != KeyEventKind::Press {
+                        continue;
+                    }
+
+                    if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c')
+                    {
+                        break;
+                    };
+
+                    let section = self.get_next_active_editable();
+
+                    match event.code {
+                        KeyCode::Char(c) => section.insert(c),
+                        KeyCode::Left => section.move_left(),
+                        KeyCode::Right => section.move_right(),
+                        KeyCode::Enter => {
+                            section.reset_cursor();
+                            section_index += 1;
+                        }
+                        KeyCode::Backspace => section.delete(),
+                        KeyCode::Esc => {
+                            section_index = if section_index > 0 {
+                                section_index - 1
+                            } else {
+                                0
+                            };
+                        }
+                        _ => (),
+                    }
+                }
+
+                Event::Resize(_, _) => {
+                    self.print_title()?;
+                }
+                _ => (),
+            }
+        }
+
+        execute!(
+            stdout,
+            cursor::MoveTo(0, 0),
+            terminal::Clear(terminal::ClearType::FromCursorDown),
+            Print(sections.iter().map(|s| s.text()).collect::<String>())
+        )?;
+
+        terminal::disable_raw_mode()?;
         Ok(())
+    }
+
+    fn print_title(&self) -> io::Result<()> {
+        execute!(
+            &self.stdout,
+            cursor::MoveTo(0, 0),
+            terminal::Clear(terminal::ClearType::FromCursorDown),
+            Print(format!("Snippet: {}\r", self.title)),
+            cursor::MoveDown(1),
+            Print("--------------------------------------\r"),
+        )?;
+
+        Ok(())
+    }
+
+    fn get_next_active_editable(&mut self) -> Option<&Section> {
+        self.sections
+            .iter()
+            .filter(|s| s.is_editable())
+            .skip(self.editable_index)
+            .next()
     }
 }
 
