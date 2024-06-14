@@ -20,8 +20,8 @@ use super::section::Section;
 pub struct SectionManager {
     stdout: Stdout,
     title: String,
-    sections: Vec<RefCell<Section>>,
-    active: Option<RefMut<Section>>,
+    sections: Vec<Rc<Section>>,
+    active: Option<Rc<Section>>,
 }
 
 impl SectionManager {
@@ -29,9 +29,9 @@ impl SectionManager {
         let sections = SectionManager::parse_content(snippet);
         let active = sections
             .iter()
-            .map(|rc| rc.borrow_mut())
             .filter(|s| s.is_editable())
             .take(1)
+            .map(|r| Rc::clone(r))
             .next();
 
         SectionManager {
@@ -42,7 +42,7 @@ impl SectionManager {
         }
     }
 
-    fn parse_content(content: &str) -> Vec<RefCell<Section>> {
+    fn parse_content(content: &str) -> Vec<Rc<Section>> {
         let chars = content.chars().collect::<Vec<char>>();
         let mut sections = Vec::new();
         let mut static_txt = Vec::new();
@@ -55,8 +55,8 @@ impl SectionManager {
             if let Some(c) = static_txt.last() {
                 if c == &'{' {
                     static_txt.pop();
-                    sections.push(RefCell::new(Section::static_text(static_txt)));
-                    sections.push(RefCell::new(Section::editable()));
+                    sections.push(Rc::new(Section::static_text(static_txt)));
+                    sections.push(Rc::new(Section::editable()));
                     static_txt = Vec::new();
                 } else {
                     static_txt.push(*c);
@@ -64,7 +64,7 @@ impl SectionManager {
             }
         }
 
-        sections.push(RefCell::new(Section::static_text(static_txt)));
+        sections.push(Rc::new(Section::static_text(static_txt)));
         sections
     }
 
