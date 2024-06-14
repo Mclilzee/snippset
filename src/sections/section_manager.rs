@@ -137,7 +137,7 @@ impl SectionManager {
     fn print_snippet(&self) -> io::Result<()> {
         execute!(
             &self.stdout,
-            cursor::MoveTo(0, 0),
+            cursor::MoveTo(0, 5),
             terminal::Clear(terminal::ClearType::FromCursorDown),
             Print(
                 self.sections
