@@ -1,23 +1,11 @@
+mod printer;
 mod sections;
-
 use std::collections::HashMap;
-use std::io::stdout;
 
-use crossterm::cursor;
-use crossterm::{execute, terminal};
 use inquire::{InquireError, Select};
 use sections::section_manager::SectionManager;
 
-const TITLE_HEIGHT: u16 = 5;
-
 fn main() -> Result<(), InquireError> {
-    execute!(
-        stdout(),
-        terminal::Clear(terminal::ClearType::All),
-        cursor::EnableBlinking,
-        cursor::MoveTo(0, 0)
-    )?;
-
     let mut map = HashMap::new();
     map.insert(
         "hello snippet",
