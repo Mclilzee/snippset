@@ -1,17 +1,15 @@
-use std::io::{self, stdout, Stdout};
+use std::io::{self};
 
 use crossterm::{
-    cursor,
     event::{read, Event, KeyCode, KeyEventKind, KeyModifiers},
-    execute,
-    style::Print,
     terminal,
 };
+
+use crate::printer::print_sections;
 
 use super::{editable_text::EditableText, section::Section};
 
 pub struct SectionManager {
-    stdout: Stdout,
     title: String,
     sections: Vec<Section>,
     active_index: usize,
@@ -22,7 +20,6 @@ impl SectionManager {
         SectionManager {
             sections: SectionManager::parse_content(snippet),
             active_index: 0,
-            stdout: stdout(),
             title: title.to_owned(),
         }
     }
@@ -54,10 +51,8 @@ impl SectionManager {
 
     pub fn start(&mut self) -> io::Result<()> {
         terminal::enable_raw_mode()?;
-        self.print_title()?;
-
         loop {
-            self.print_snippet()?;
+            print_sections(&self.title, &self.sections)?;
             match read()? {
                 Event::Key(event) => {
                     if event.kind != KeyEventKind::Press {
@@ -94,9 +89,7 @@ impl SectionManager {
                     }
                 }
 
-                Event::Resize(_, _) => {
-                    self.print_title()?;
-                }
+                Event::Resize(_, _) => {}
                 _ => (),
             }
         }
@@ -112,30 +105,6 @@ impl SectionManager {
         };
 
         section.suffix.as_mut()
-    }
-
-    fn print_title(&self) -> io::Result<()> {
-        execute!(
-            &self.stdout,
-            cursor::MoveTo(0, 0),
-            terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(format!("Snippet: {}\r", self.title)),
-            cursor::MoveDown(1),
-            Print("--------------------------------------\r"),
-        )?;
-
-        Ok(())
-    }
-
-    fn print_snippet(&self) -> io::Result<()> {
-        execute!(
-            &self.stdout,
-            cursor::MoveTo(0, 5),
-            terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(self.sections.iter().map(|s| s.text()).collect::<String>())
-        )?;
-
-        Ok(())
     }
 }
 
