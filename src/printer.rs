@@ -4,7 +4,7 @@ use crossterm::{cursor, execute, style::Print, terminal};
 
 use crate::sections::section::Section;
 
-const TITLE_HEIGHT: u16 = 5;
+const TITLE_PADDING: u16 = 5;
 
 pub fn print_sections(title: &str, sections: &[Section]) -> io::Result<()> {
     print_title(title)?;
@@ -16,7 +16,7 @@ pub fn print_sections(title: &str, sections: &[Section]) -> io::Result<()> {
 fn print_snippet(sections: &[Section]) -> io::Result<()> {
     execute!(
         stdout(),
-        cursor::MoveTo(0, TITLE_HEIGHT),
+        cursor::MoveTo(0, TITLE_PADDING),
         terminal::Clear(terminal::ClearType::FromCursorDown),
         Print(sections.iter().map(|s| s.text()).collect::<String>())
     )?;
