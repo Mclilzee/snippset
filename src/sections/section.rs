@@ -2,8 +2,8 @@ use super::editable_text::EditableText;
 
 #[derive(Debug, PartialEq)]
 pub struct Section {
-    prefix: Vec<char>,
-    suffix: Option<EditableText>,
+    pub prefix: Vec<char>,
+    pub suffix: Option<EditableText>,
 }
 
 impl Section {
