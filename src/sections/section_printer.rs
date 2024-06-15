@@ -9,21 +9,23 @@ const LINE_POSITION_UNDER_HEADER: u16 = 1;
 
 pub struct SectionPrinter {
     stdout: Stdout,
-    snippet_start: (u16, u16),
+    body_row: u16,
+    width: u16,
 }
 
 impl SectionPrinter {
     pub fn new() -> Self {
         Self {
             stdout: stdout(),
-            snippet_start: (0, 0),
+            body_row: 0,
+            width: 0,
         }
     }
 
-    pub fn print_snippet(&mut self, sections: &[Section]) -> io::Result<()> {
+    pub fn print_body(&mut self, sections: &[Section], cursor_index: usize) -> io::Result<()> {
         execute!(
             self.stdout,
-            cursor::MoveTo(self.snippet_start.0, self.snippet_start.1),
+            cursor::MoveTo(0 as u16, self.body_row),
             terminal::Clear(terminal::ClearType::FromCursorDown),
             Print(sections.iter().map(|s| s.text()).collect::<String>())
         )?;
@@ -32,7 +34,7 @@ impl SectionPrinter {
     }
 
     pub fn print_header(&mut self, title: &str) -> io::Result<()> {
-        let (width, _) = terminal::size()?;
+        self.width = terminal::size()?.0;
         self.stdout
             .queue(cursor::MoveTo(0, 0))?
             .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?;
@@ -48,19 +50,20 @@ impl SectionPrinter {
                 column += 1;
             }
 
-            if column > width {
+            if column > self.width {
                 row += 1;
                 column = 0;
             }
-            self.stdout.queue(Print(c));
+            self.stdout.queue(Print(c))?;
         }
 
-        self.stdout
+        let _ = self
+            .stdout
             .queue(cursor::MoveDown(row))?
-            .queue(Print((0..width).map(|_| '-').collect::<String>()))?;
+            .queue(Print((0..self.width).map(|_| '-').collect::<String>()))?;
 
-        self.snippet_start = (0, row + TITLE_PADDING + LINE_POSITION_UNDER_HEADER);
-        self.stdout.flush();
+        self.body_row = row + TITLE_PADDING + LINE_POSITION_UNDER_HEADER;
+        self.stdout.flush()?;
         Ok(())
     }
 }

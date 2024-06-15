@@ -24,7 +24,9 @@ impl SnippetEngine {
         terminal::enable_raw_mode()?;
         self.printer.print_header(&self.title)?;
         loop {
-            self.printer.print_snippet(&self.manager.sections)?;
+            let _ = self
+                .printer
+                .print_body(&self.manager.sections, self.manager.active_index)?;
             match read()? {
                 Event::Key(event) => {
                     if event.kind != KeyEventKind::Press {
@@ -41,7 +43,7 @@ impl SnippetEngine {
                     };
                 }
                 Event::Resize(_, _) => {
-                    self.printer.print_header(&self.title);
+                    let _ = self.printer.print_header(&self.title);
                 }
                 _ => (),
             }
