@@ -1,10 +1,11 @@
 use crossterm::QueueableCommand;
 use crossterm::{cursor, execute, style::Print, terminal};
-use std::io::{self, stdout, Stdout};
+use std::io::{self, stdout, Stdout, Write};
 
 use crate::sections::section::Section;
 
 const TITLE_PADDING: u16 = 2;
+const LINE_POSITION_UNDER_HEADER: u16 = 1;
 
 pub struct SectionPrinter {
     stdout: Stdout,
@@ -19,10 +20,10 @@ impl SectionPrinter {
         }
     }
 
-    pub fn print_snippet(&self, sections: &[Section]) -> io::Result<()> {
+    pub fn print_snippet(&mut self, sections: &[Section]) -> io::Result<()> {
         execute!(
-            stdout(),
-            cursor::MoveTo(0, TITLE_PADDING),
+            self.stdout,
+            cursor::MoveTo(self.snippet_start.0, self.snippet_start.1),
             terminal::Clear(terminal::ClearType::FromCursorDown),
             Print(sections.iter().map(|s| s.text()).collect::<String>())
         )?;
@@ -34,14 +35,13 @@ impl SectionPrinter {
         let (width, _) = terminal::size()?;
         self.stdout
             .queue(cursor::MoveTo(0, 0))?
-            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?
-            .queue(Print("Snippet: "))?;
+            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?;
 
         let mut column = 0;
         let mut row = 0;
 
-        for c in title.chars() {
-            if c == '\n' {
+        for c in "Snippet: ".chars().chain(title.chars()).chain("\r".chars()) {
+            if c == '\r' {
                 row += 1;
                 column = 0;
             } else {
@@ -56,11 +56,11 @@ impl SectionPrinter {
         }
 
         self.stdout
-            .queue(Print("\r"))?
-            .queue(cursor::MoveDown(1))?
-            .queue(Print("--------------------------------------\r"))?;
+            .queue(cursor::MoveDown(row))?
+            .queue(Print((0..width).map(|_| '-').collect::<String>()))?;
 
-        self.snippet_start = (column, row + TITLE_PADDING);
+        self.snippet_start = (0, row + TITLE_PADDING + LINE_POSITION_UNDER_HEADER);
+        self.stdout.flush();
         Ok(())
     }
 }
