@@ -7,16 +7,16 @@ pub struct Section {
 }
 
 impl Section {
-    pub fn body(prefix: &str) -> Self {
+    pub fn body(prefix: Vec<char>) -> Self {
         Section {
-            prefix: prefix.chars().collect(),
+            prefix,
             suffix: Some(EditableText::new()),
         }
     }
 
-    pub fn tail(prefix: &str) -> Self {
+    pub fn tail(prefix: Vec<char>) -> Self {
         Section {
-            prefix: prefix.chars().collect(),
+            prefix,
             suffix: None,
         }
     }
@@ -28,14 +28,14 @@ mod test {
 
     #[test]
     fn creates_correct_body() {
-        let section = Section::body("Hello this");
+        let section = Section::body("Hello this".chars().collect());
         assert_eq!(section.prefix, "Hello this".chars().collect::<Vec<char>>());
         assert!(section.suffix.is_some())
     }
 
     #[test]
     fn creates_tail() {
-        let section = Section::tail("Hello world");
+        let section = Section::tail("Hello world".chars().collect());
         assert_eq!(section.prefix, "Hello world".chars().collect::<Vec<char>>());
         assert!(section.suffix.is_none());
     }

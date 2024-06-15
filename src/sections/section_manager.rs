@@ -8,8 +8,6 @@ use crossterm::{
     terminal,
 };
 
-use crate::text::text::EditableText;
-
 use super::section::Section;
 
 pub struct SectionManager {
@@ -42,8 +40,7 @@ impl SectionManager {
             if let Some(c) = static_txt.last() {
                 if c == &'{' {
                     static_txt.pop();
-                    sections.push(Section::static_text(static_txt));
-                    sections.push(Section::editable());
+                    sections.push(Section::body(static_txt));
                     static_txt = Vec::new();
                 } else {
                     static_txt.push(*c);
