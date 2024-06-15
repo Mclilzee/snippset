@@ -48,7 +48,7 @@ impl SectionManager {
             }
         }
 
-        sections.push(Section::static_text(static_txt));
+        sections.push(Section::tail(static_txt));
         sections
     }
 
