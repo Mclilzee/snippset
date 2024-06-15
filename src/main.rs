@@ -1,9 +1,9 @@
 mod printer;
 mod sections;
+use sections::snippet_engine::SnippetEngine;
 use std::collections::HashMap;
 
 use inquire::{InquireError, Select};
-use sections::section_manager::SectionManager;
 
 fn main() -> Result<(), InquireError> {
     let mut map = HashMap::new();
@@ -15,9 +15,9 @@ fn main() -> Result<(), InquireError> {
 
     let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
     let snippet = map.get(key).unwrap();
-    let mut section_manager = SectionManager::new(key, snippet);
+    let mut snippet_engine = SnippetEngine::new(key, snippet);
 
-    if let Err(e) = section_manager.start() {
+    if let Err(e) = snippet_engine.start() {
         println!("Error: {:?}\r", e);
     }
     Ok(())

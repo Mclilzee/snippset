@@ -1,26 +1,15 @@
-use std::io::{self};
-
-use crossterm::{
-    event::{read, Event, KeyCode, KeyEventKind, KeyModifiers},
-    terminal,
-};
-
-use crate::printer::print_sections;
-
 use super::{editable_text::EditableText, section::Section};
 
 pub struct SectionManager {
-    title: String,
-    sections: Vec<Section>,
-    active_index: usize,
+    pub sections: Vec<Section>,
+    pub active_index: usize,
 }
 
 impl SectionManager {
-    pub fn new(title: &str, snippet: &str) -> Self {
+    pub fn new(snippet: &str) -> Self {
         SectionManager {
             sections: SectionManager::parse_content(snippet),
             active_index: 0,
-            title: title.to_owned(),
         }
     }
 
@@ -49,56 +38,7 @@ impl SectionManager {
         sections
     }
 
-    pub fn start(&mut self) -> io::Result<()> {
-        terminal::enable_raw_mode()?;
-        loop {
-            print_sections(&self.title, &self.sections)?;
-            match read()? {
-                Event::Key(event) => {
-                    if event.kind != KeyEventKind::Press {
-                        continue;
-                    }
-
-                    if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c')
-                    {
-                        break;
-                    };
-
-                    let ed = match self.active_editable() {
-                        Some(ed) => ed,
-                        None => break,
-                    };
-
-                    match event.code {
-                        KeyCode::Char(c) => ed.insert(c),
-                        KeyCode::Left => ed.move_left(),
-                        KeyCode::Right => ed.move_right(),
-                        KeyCode::Backspace => ed.delete(),
-                        KeyCode::Enter => {
-                            ed.reset_cursor();
-                            self.active_index += 1;
-                        }
-                        KeyCode::Esc => {
-                            self.active_index = if self.active_index > 0 {
-                                self.active_index - 1
-                            } else {
-                                0
-                            };
-                        }
-                        _ => (),
-                    }
-                }
-
-                Event::Resize(_, _) => {}
-                _ => (),
-            }
-        }
-
-        terminal::disable_raw_mode()?;
-        Ok(())
-    }
-
-    fn active_editable(&mut self) -> Option<&mut EditableText> {
+    pub fn active_editable(&mut self) -> Option<&mut EditableText> {
         let section = match self.sections.get_mut(self.active_index) {
             Some(s) => s,
             None => return None,
@@ -114,7 +54,7 @@ mod test {
 
     #[test]
     fn return_string_as_section_tail() {
-        let manager = SectionManager::new("title", "text");
+        let manager = SectionManager::new("text");
         assert_eq!(1, manager.sections.len());
         let section = manager.sections.first().unwrap();
         let expected = section_tail("text");
@@ -123,7 +63,7 @@ mod test {
 
     #[test]
     fn contains_tail_even_if_empty() {
-        let manager = SectionManager::new("title", "");
+        let manager = SectionManager::new("");
         assert_eq!(1, manager.sections.len());
         let section = manager.sections.first().unwrap();
         let expected = section_tail("");
@@ -132,7 +72,7 @@ mod test {
 
     #[test]
     fn return_correct_section() {
-        let manager = SectionManager::new("header", "Content {}");
+        let manager = SectionManager::new("Content {}");
         assert_eq!(2, manager.sections.len());
         let body = manager.sections.first().unwrap();
         let tail = manager.sections.get(1).unwrap();
@@ -143,7 +83,7 @@ mod test {
 
     #[test]
     fn parse_multiple_sections() {
-        let manager = SectionManager::new("title", "Hello {}, another{} tail moving forward.");
+        let manager = SectionManager::new("Hello {}, another{} tail moving forward.");
         assert_eq!(3, manager.sections.len());
 
         let first = manager.sections.first().unwrap();

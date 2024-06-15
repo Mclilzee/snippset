@@ -2,13 +2,13 @@ use std::io::{self, stdout};
 
 use crossterm::{cursor, execute, style::Print, terminal};
 
-use crate::sections::section::Section;
+use crate::sections::{section::Section, section_manager::SectionManager};
 
 const TITLE_PADDING: u16 = 5;
 
-pub fn print_sections(title: &str, sections: &[Section]) -> io::Result<()> {
-    print_title(title)?;
-    print_snippet(sections)?;
+pub fn print_sections(manager: &SectionManager) -> io::Result<()> {
+    print_title(&manager.title)?;
+    print_snippet(&manager.sections)?;
 
     Ok(())
 }
