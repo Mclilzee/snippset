@@ -143,64 +143,62 @@ impl SectionManager {
         Ok(())
     }
 }
-//
-// #[cfg(test)]
-// mod test {
-//     use crate::sections::{section::Section, section_manager::SectionManager};
-//
-//     #[test]
-//     fn return_string_as_section_tail() {
-//         let manager = SectionManager::new("title", "text");
-//         assert_eq!(1, manager.sections.len());
-//         let section = manager.sections.first().unwrap();
-//         let expected = create_static("text");
-//         assert_eq!(section, &expected);
-//     }
-//
-//     #[test]
-//     fn contains_tail_even_if_empty() {
-//         let manager = SectionManager::new("title", "");
-//         assert_eq!(1, manager.sections.len());
-//         let section = manager.sections.first().unwrap();
-//         let expected = create_static("");
-//         assert_eq!(section, &expected);
-//     }
-//
-//     #[test]
-//     fn return_correct_section() {
-//         let manager = SectionManager::new("header", "Content {}");
-//         assert_eq!(3, manager.sections.len());
-//         let first = manager.sections.first().unwrap();
-//         let second = manager.sections.get(1).unwrap();
-//         let last = manager.sections.get(2).unwrap();
-//
-//         let first_expected = create_static("Content ");
-//         let second_expected = Section::editable();
-//         let last_expected = create_static("");
-//
-//         assert_eq!(first, &first_expected);
-//         assert_eq!(second, &second_expected);
-//         assert_eq!(last, &last_expected);
-//     }
-//
-//     #[test]
-//     fn parse_multiple_sections_including_tail() {
-//         let manager = SectionManager::new("title", "Hello {}, another{} tail moving forward.");
-//         assert_eq!(5, manager.sections.len());
-//
-//         let first = manager.sections.first().unwrap();
-//         let second = manager.sections.get(1).unwrap();
-//         let third = manager.sections.get(2).unwrap();
-//         let fourth = manager.sections.get(3).unwrap();
-//         let last = manager.sections.get(4).unwrap();
-//         assert_eq!(first, &create_static("Hello "));
-//         assert_eq!(second, &Section::editable());
-//         assert_eq!(third, &create_static(", another"));
-//         assert_eq!(fourth, &Section::editable());
-//         assert_eq!(last, &create_static(" tail moving forward."));
-//     }
-//
-//     fn create_static(str: &str) -> Section {
-//         Section::static_text(str.chars().collect())
-//     }
-// }
+
+#[cfg(test)]
+mod test {
+    use crate::sections::{section::Section, section_manager::SectionManager};
+
+    #[test]
+    fn return_string_as_section_tail() {
+        let manager = SectionManager::new("title", "text");
+        assert_eq!(1, manager.sections.len());
+        let section = manager.sections.first().unwrap();
+        let expected = section_tail("text");
+        assert_eq!(section, &expected);
+    }
+
+    #[test]
+    fn contains_tail_even_if_empty() {
+        let manager = SectionManager::new("title", "");
+        assert_eq!(1, manager.sections.len());
+        let section = manager.sections.first().unwrap();
+        let expected = section_tail("");
+        assert_eq!(section, &expected);
+    }
+
+    #[test]
+    fn return_correct_section() {
+        let manager = SectionManager::new("header", "Content {}");
+        assert_eq!(2, manager.sections.len());
+        let body = manager.sections.first().unwrap();
+        let tail = manager.sections.get(1).unwrap();
+
+        assert_eq!(body, &section_body("Content "));
+        assert_eq!(tail, &section_tail(""));
+    }
+
+    // #[test]
+    // fn parse_multiple_sections() {
+    //     let manager = SectionManager::new("title", "Hello {}, another{} tail moving forward.");
+    //     assert_eq!(5, manager.sections.len());
+    //
+    //     let first = manager.sections.first().unwrap();
+    //     let second = manager.sections.get(1).unwrap();
+    //     let third = manager.sections.get(2).unwrap();
+    //     let fourth = manager.sections.get(3).unwrap();
+    //     let last = manager.sections.get(4).unwrap();
+    //     assert_eq!(first, &create_static("Hello "));
+    //     assert_eq!(second, &Section::editable());
+    //     assert_eq!(third, &create_static(", another"));
+    //     assert_eq!(fourth, &Section::editable());
+    //     assert_eq!(last, &create_static(" tail moving forward."));
+    // }
+
+    fn section_body(str: &str) -> Section {
+        Section::body(str.chars().collect())
+    }
+
+    fn section_tail(str: &str) -> Section {
+        Section::tail(str.chars().collect())
+    }
+}
