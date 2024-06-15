@@ -1,4 +1,4 @@
-use super::section_manager::SectionManager;
+use super::{section_manager::SectionManager, section_printer::SectionPrinter};
 use crossterm::{
     event::{read, Event, KeyCode, KeyEventKind, KeyModifiers},
     terminal,
@@ -8,6 +8,7 @@ use std::io;
 pub struct SnippetEngine {
     title: String,
     manager: SectionManager,
+    printer: SectionPrinter,
 }
 
 impl SnippetEngine {
@@ -15,12 +16,15 @@ impl SnippetEngine {
         Self {
             title: title.to_owned(),
             manager: SectionManager::new(snippet),
+            printer: SectionPrinter::new(),
         }
     }
 
     pub fn start(&mut self) -> io::Result<()> {
         terminal::enable_raw_mode()?;
+        self.printer.print_title(&self.title)?;
         loop {
+            self.printer.print_snippet(&self.manager.sections)?;
             match read()? {
                 Event::Key(event) => {
                     if event.kind != KeyEventKind::Press {
@@ -32,7 +36,7 @@ impl SnippetEngine {
                         break;
                     };
 
-                    if let Err(_) = self.handle_input(event.code) {
+                    if self.handle_input(event.code).is_err() {
                         break;
                     };
                 }
@@ -52,6 +56,7 @@ impl SnippetEngine {
             Some(ed) => ed,
             None => return Err(()),
         };
+
         match keycode {
             KeyCode::Char(c) => editor.insert(c),
             KeyCode::Left => editor.move_left(),

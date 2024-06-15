@@ -1,4 +1,3 @@
-mod printer;
 mod sections;
 use sections::snippet_engine::SnippetEngine;
 use std::collections::HashMap;
