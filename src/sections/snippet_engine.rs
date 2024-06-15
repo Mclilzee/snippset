@@ -32,27 +32,9 @@ impl SnippetEngine {
                         break;
                     };
 
-                    let ed = match self.manager.active_editable() {
-                        Some(ed) => ed,
-                        None => break,
+                    if let Err(_) = self.handle_input(event.code) {
+                        break;
                     };
-
-                    match event.code {
-                        KeyCode::Char(c) => ed.insert(c),
-                        KeyCode::Left => ed.move_left(),
-                        KeyCode::Right => ed.move_right(),
-                        KeyCode::Backspace => ed.delete(),
-                        KeyCode::Enter => {
-                            ed.reset_cursor();
-                            self.manager.active_index += 1;
-                        }
-                        KeyCode::Esc => {
-                            if self.manager.active_index > 0 {
-                                self.manager.active_index -= 1;
-                            }
-                        }
-                        _ => (),
-                    }
                 }
                 Event::Resize(_, _) => {
                     todo!();
@@ -62,6 +44,31 @@ impl SnippetEngine {
         }
 
         terminal::disable_raw_mode()?;
+        Ok(())
+    }
+
+    fn handle_input(&mut self, keycode: KeyCode) -> Result<(), ()> {
+        let editor = match self.manager.active_editable() {
+            Some(ed) => ed,
+            None => return Err(()),
+        };
+        match keycode {
+            KeyCode::Char(c) => editor.insert(c),
+            KeyCode::Left => editor.move_left(),
+            KeyCode::Right => editor.move_right(),
+            KeyCode::Backspace => editor.delete(),
+            KeyCode::Enter => {
+                editor.reset_cursor();
+                self.manager.active_index += 1;
+            }
+            KeyCode::Esc => {
+                if self.manager.active_index > 0 {
+                    self.manager.active_index -= 1;
+                }
+            }
+            _ => (),
+        }
+
         Ok(())
     }
 }
