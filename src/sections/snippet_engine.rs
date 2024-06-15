@@ -22,7 +22,7 @@ impl SnippetEngine {
 
     pub fn start(&mut self) -> io::Result<()> {
         terminal::enable_raw_mode()?;
-        self.printer.print_title(&self.title)?;
+        self.printer.print_header(&self.title)?;
         loop {
             self.printer.print_snippet(&self.manager.sections)?;
             match read()? {
@@ -41,7 +41,7 @@ impl SnippetEngine {
                     };
                 }
                 Event::Resize(_, _) => {
-                    todo!();
+                    self.printer.print_header(&self.title);
                 }
                 _ => (),
             }

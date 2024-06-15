@@ -4,7 +4,7 @@ use std::io::{self, stdout, Stdout};
 
 use crate::sections::section::Section;
 
-const TITLE_PADDING: u16 = 5;
+const TITLE_PADDING: u16 = 2;
 
 pub struct SectionPrinter {
     stdout: Stdout,
@@ -30,7 +30,7 @@ impl SectionPrinter {
         Ok(())
     }
 
-    pub fn print_title(&mut self, title: &str) -> io::Result<()> {
+    pub fn print_header(&mut self, title: &str) -> io::Result<()> {
         let (width, _) = terminal::size()?;
         self.stdout
             .queue(cursor::MoveTo(0, 0))?
@@ -60,6 +60,7 @@ impl SectionPrinter {
             .queue(cursor::MoveDown(1))?
             .queue(Print("--------------------------------------\r"))?;
 
+        self.snippet_start = (column, row + TITLE_PADDING);
         Ok(())
     }
 }
