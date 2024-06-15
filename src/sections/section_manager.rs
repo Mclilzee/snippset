@@ -132,12 +132,7 @@ impl SectionManager {
             &self.stdout,
             cursor::MoveTo(0, 5),
             terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(
-                self.sections
-                    .iter()
-                    .flat_map(|s| &s.prefix)
-                    .collect::<String>()
-            )
+            Print(self.sections.iter().map(|s| s.text()).collect::<String>())
         )?;
 
         Ok(())

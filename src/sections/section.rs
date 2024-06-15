@@ -20,6 +20,15 @@ impl Section {
             suffix: None,
         }
     }
+
+    pub fn text(&self) -> String {
+        let mut result = self.prefix.clone();
+        if let Some(ref suffix) = self.suffix {
+            result.extend(&suffix.chars);
+        }
+
+        result.iter().collect()
+    }
 }
 
 #[cfg(test)]
