@@ -177,22 +177,19 @@ mod test {
         assert_eq!(tail, &section_tail(""));
     }
 
-    // #[test]
-    // fn parse_multiple_sections() {
-    //     let manager = SectionManager::new("title", "Hello {}, another{} tail moving forward.");
-    //     assert_eq!(5, manager.sections.len());
-    //
-    //     let first = manager.sections.first().unwrap();
-    //     let second = manager.sections.get(1).unwrap();
-    //     let third = manager.sections.get(2).unwrap();
-    //     let fourth = manager.sections.get(3).unwrap();
-    //     let last = manager.sections.get(4).unwrap();
-    //     assert_eq!(first, &create_static("Hello "));
-    //     assert_eq!(second, &Section::editable());
-    //     assert_eq!(third, &create_static(", another"));
-    //     assert_eq!(fourth, &Section::editable());
-    //     assert_eq!(last, &create_static(" tail moving forward."));
-    // }
+    #[test]
+    fn parse_multiple_sections() {
+        let manager = SectionManager::new("title", "Hello {}, another{} tail moving forward.");
+        assert_eq!(3, manager.sections.len());
+
+        let first = manager.sections.first().unwrap();
+        let second = manager.sections.get(1).unwrap();
+        let tail = manager.sections.get(2).unwrap();
+
+        assert_eq!(first, &section_body("Hello "));
+        assert_eq!(second, &section_body(", another"));
+        assert_eq!(tail, &section_tail(" tail moving forward."));
+    }
 
     fn section_body(str: &str) -> Section {
         Section::body(str.chars().collect())
