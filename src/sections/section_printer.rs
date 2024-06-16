@@ -54,21 +54,18 @@ impl SectionPrinter {
                 &ed.chars
             };
 
-            let mut str = String::new();
             if i == cursor_index {
                 position = cursor::position()?;
                 for (i, c) in chars.iter().enumerate() {
-                    str.push(*c);
+                    self.stdout.queue(Print(c))?;
 
                     if i < ed.cursor {
                         position = cursor::position()?;
                     }
                 }
             } else {
-                str = chars.iter().collect::<String>();
+                self.stdout.queue(Print(chars.iter().collect::<String>()))?;
             }
-
-            self.stdout.queue(Print(str.underlined()))?;
         }
 
         self.stdout.queue(cursor::MoveTo(position.0, position.1))?;
