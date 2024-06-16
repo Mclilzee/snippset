@@ -1,4 +1,4 @@
-use crossterm::style::{Attribute, SetAttribute, Stylize};
+use crossterm::style::Stylize;
 use crossterm::QueueableCommand;
 use crossterm::{cursor, execute, style::Print, terminal};
 use std::io::{self, stdout, Stdout, Write};
@@ -38,8 +38,6 @@ impl SectionPrinter {
             .queue(cursor::RestorePosition)?
             .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?;
 
-        let empty_cell_chars = vec!['{', '}'];
-
         let mut position = (0, 0);
         for (i, section) in sections.iter().enumerate() {
             self.stdout.queue(Print(&section.prefix))?;
@@ -48,15 +46,10 @@ impl SectionPrinter {
                 None => continue,
             };
 
-            let chars = if ed.chars.is_empty() {
-                &empty_cell_chars
-            } else {
-                &ed.chars
-            };
-
+            self.stdout.queue(Print('['.green()))?;
             if i == cursor_index {
                 position = cursor::position()?;
-                for (i, c) in chars.iter().enumerate() {
+                for (i, c) in ed.chars.iter().enumerate() {
                     self.stdout.queue(Print(c.underlined()))?;
 
                     if i < ed.cursor {
@@ -64,8 +57,10 @@ impl SectionPrinter {
                     }
                 }
             } else {
-                self.stdout.queue(Print(chars.iter().collect::<String>()))?;
+                self.stdout
+                    .queue(Print(ed.chars.iter().collect::<String>().underlined()))?;
             }
+            self.stdout.queue(Print(']'.green()))?;
         }
 
         self.stdout.queue(cursor::MoveTo(position.0, position.1))?;
