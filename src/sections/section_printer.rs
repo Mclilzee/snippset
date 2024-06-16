@@ -68,7 +68,6 @@ impl SectionPrinter {
             }
         }
 
-        println!("{:?}", position);
         self.stdout.queue(cursor::MoveTo(position.0, position.1))?;
         self.stdout.flush()?;
         Ok(())
