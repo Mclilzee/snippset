@@ -33,26 +33,22 @@ impl SectionPrinter {
     }
 
     pub fn print_body(&mut self, sections: &[Section], cursor_index: usize) -> io::Result<()> {
-        for section in sections.iter() {
-            for (i, c) in section.prefix.iter().enumerate() {
-                self.stdout
-                    .queue(cursor::RestorePosition)?
-                    .queue(Print(c))?;
+        self.stdout
+            .queue(cursor::RestorePosition)?
+            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?;
+
+        let mut position = (0, 0);
+        for (i, section) in sections.iter().enumerate() {
+            self.stdout.queue(Print(section.text()))?;
+
+            if i == cursor_index {
+                position = cursor::position()?;
             }
-
-            let suffix = match section.suffix.as_ref() {
-                Some(ed) => ed,
-                None => continue,
-            };
-
-            for c in &suffix.chars {}
         }
-        execute!(
-            self.stdout,
-            terminal::Clear(terminal::ClearType::FromCursorDown),
-            Print(sections.iter().map(|s| s.text()).collect::<String>())
-        )?;
 
+        self.stdout.queue(cursor::MoveTo(position.0, position.1))?;
+
+        self.stdout.flush()?;
         Ok(())
     }
 }
