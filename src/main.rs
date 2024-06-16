@@ -1,5 +1,4 @@
 mod sections;
-use crossterm::{execute, style::Print};
 use sections::snippet_engine::SnippetEngine;
 use std::collections::HashMap;
 

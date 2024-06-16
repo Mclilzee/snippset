@@ -24,8 +24,7 @@ impl SnippetEngine {
         terminal::enable_raw_mode()?;
         self.printer.print_header(&self.title)?;
         loop {
-            let _ = self
-                .printer
+            self.printer
                 .print_body(&self.manager.sections, self.manager.active_index)?;
             match read()? {
                 Event::Key(event) => {
