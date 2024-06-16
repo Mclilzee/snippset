@@ -22,48 +22,43 @@ impl SectionPrinter {
         }
     }
 
+    pub fn print_header(&mut self, title: &str) -> io::Result<()> {
+        let (width, _) = terminal::size()?;
+
+        self.stdout
+            .queue(cursor::MoveTo(0, 0))?
+            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?
+            .queue(Print(format!("Snippet: {title}\n")))?
+            .queue(cursor::MoveDown(2))?
+            .queue(cursor::MoveToColumn(0))?
+            .queue(Print((0..width).map(|_| '-').collect::<String>()))?
+            .queue(cursor::MoveDown(1))?
+            .queue(cursor::MoveToColumn(0))?
+            .queue(cursor::SavePosition)?;
+
+        self.stdout.flush()?;
+        Ok(())
+    }
+
     pub fn print_body(&mut self, sections: &[Section], cursor_index: usize) -> io::Result<()> {
+        for section in sections.iter() {
+            for (i, c) in section.prefix.iter().enumerate() {
+                self.stdout.queue(Print(c))?;
+            }
+
+            let suffix = match section.suffix.as_ref() {
+                Some(ed) => ed,
+                None => continue,
+            };
+
+            for c in &suffix.chars {}
+        }
         execute!(
             self.stdout,
-            cursor::MoveTo(0 as u16, self.body_row),
             terminal::Clear(terminal::ClearType::FromCursorDown),
             Print(sections.iter().map(|s| s.text()).collect::<String>())
         )?;
 
-        Ok(())
-    }
-
-    pub fn print_header(&mut self, title: &str) -> io::Result<()> {
-        self.width = terminal::size()?.0;
-        self.stdout
-            .queue(cursor::MoveTo(0, 0))?
-            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?;
-
-        let mut column = 0;
-        let mut row = 0;
-
-        for c in "Snippet: ".chars().chain(title.chars()).chain("\r".chars()) {
-            if c == '\r' {
-                row += 1;
-                column = 0;
-            } else {
-                column += 1;
-            }
-
-            if column > self.width {
-                row += 1;
-                column = 0;
-            }
-            self.stdout.queue(Print(c))?;
-        }
-
-        let _ = self
-            .stdout
-            .queue(cursor::MoveDown(row))?
-            .queue(Print((0..self.width).map(|_| '-').collect::<String>()))?;
-
-        self.body_row = row + TITLE_PADDING + LINE_POSITION_UNDER_HEADER;
-        self.stdout.flush()?;
         Ok(())
     }
 }

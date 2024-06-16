@@ -1,4 +1,5 @@
 mod sections;
+use crossterm::{execute, style::Print};
 use sections::snippet_engine::SnippetEngine;
 use std::collections::HashMap;
 
@@ -19,5 +20,6 @@ fn main() -> Result<(), InquireError> {
     if let Err(e) = snippet_engine.start() {
         println!("Error: {:?}\r", e);
     }
+
     Ok(())
 }
