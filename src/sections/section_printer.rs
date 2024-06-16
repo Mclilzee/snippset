@@ -1,3 +1,4 @@
+use crossterm::style::Stylize;
 use crossterm::QueueableCommand;
 use crossterm::{cursor, execute, style::Print, terminal};
 use std::io::{self, stdout, Stdout, Write};
@@ -53,18 +54,21 @@ impl SectionPrinter {
                 &ed.chars
             };
 
+            let mut str = String::new();
             if i == cursor_index {
                 position = cursor::position()?;
                 for (i, c) in chars.iter().enumerate() {
-                    self.stdout.queue(Print(c))?;
+                    str.push(*c);
 
                     if i < ed.cursor {
                         position = cursor::position()?;
                     }
                 }
             } else {
-                self.stdout.queue(Print(chars.iter().collect::<String>()))?;
+                str = chars.iter().collect::<String>();
             }
+
+            self.stdout.queue(Print(str.underlined()))?;
         }
 
         self.stdout.queue(cursor::MoveTo(position.0, position.1))?;
