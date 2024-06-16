@@ -36,7 +36,8 @@ impl SectionPrinter {
     pub fn print_body(&mut self, sections: &[Section], cursor_index: usize) -> io::Result<()> {
         self.stdout
             .queue(cursor::RestorePosition)?
-            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?;
+            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?
+            .queue(cursor::Hide)?;
 
         let mut position = (0, 0);
         for (i, section) in sections.iter().enumerate() {
@@ -63,7 +64,9 @@ impl SectionPrinter {
             self.stdout.queue(Print(']'.green()))?;
         }
 
-        self.stdout.queue(cursor::MoveTo(position.0, position.1))?;
+        self.stdout
+            .queue(cursor::MoveTo(position.0, position.1))?
+            .queue(cursor::Show)?;
         self.stdout.flush()?;
         Ok(())
     }
