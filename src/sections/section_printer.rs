@@ -37,17 +37,37 @@ impl SectionPrinter {
             .queue(cursor::RestorePosition)?
             .queue(terminal::Clear(terminal::ClearType::FromCursorDown))?;
 
+        let empty_cell_chars = vec!['_'];
+
         let mut position = (0, 0);
         for (i, section) in sections.iter().enumerate() {
-            self.stdout.queue(Print(section.text()))?;
+            self.stdout.queue(Print(&section.prefix))?;
+            let ed = match section.suffix.as_ref() {
+                Some(ed) => ed,
+                None => continue,
+            };
+
+            let chars = if ed.chars.is_empty() {
+                &empty_cell_chars
+            } else {
+                &ed.chars
+            };
 
             if i == cursor_index {
                 position = cursor::position()?;
+                for (i, c) in chars.iter().enumerate() {
+                    self.stdout.queue(Print(c))?;
+
+                    if i < ed.cursor {
+                        position = cursor::position()?;
+                    }
+                }
+            } else {
+                self.stdout.queue(Print(chars.iter().collect::<String>()))?;
             }
         }
 
         self.stdout.queue(cursor::MoveTo(position.0, position.1))?;
-
         self.stdout.flush()?;
         Ok(())
     }
