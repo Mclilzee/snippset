@@ -41,7 +41,7 @@ impl SectionPrinter {
 
         let mut position = (0, 0);
         for (i, section) in sections.iter().enumerate() {
-            self.stdout.queue(Print(&section.prefix))?;
+            self.print_chars(&section.prefix)?;
             let ed = match section.suffix.as_ref() {
                 Some(ed) => ed,
                 None => continue,
@@ -68,6 +68,17 @@ impl SectionPrinter {
             .queue(cursor::MoveTo(position.0, position.1))?
             .queue(cursor::Show)?;
         self.stdout.flush()?;
+        Ok(())
+    }
+
+    fn print_chars(&mut self, chars: &[char]) -> io::Result<()> {
+        for c in chars.iter() {
+            if c == &'\n' {
+                self.stdout.queue(cursor::MoveToColumn(0))?;
+            }
+            self.stdout.queue(Print(c))?;
+        }
+
         Ok(())
     }
 }

@@ -24,7 +24,7 @@ impl SectionManager {
                 if let Some(c) = static_txt.last() {
                     if c == &'{' {
                         static_txt.pop();
-                        sections.push(Section::body(static_txt.iter().collect()));
+                        sections.push(Section::body(static_txt));
                         static_txt = Vec::new();
                     } else {
                         static_txt.push(*c);
@@ -35,7 +35,7 @@ impl SectionManager {
             }
         }
 
-        sections.push(Section::tail(static_txt.iter().collect()));
+        sections.push(Section::tail(static_txt));
         sections
     }
 
