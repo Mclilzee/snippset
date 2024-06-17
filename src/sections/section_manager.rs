@@ -20,7 +20,7 @@ impl SectionManager {
         for c in chars {
             if c == '\r' {
                 static_txt.push('\n');
-            } else if c != '}' {
+            } else if c == '}' {
                 if let Some(c) = static_txt.last() {
                     if c == &'{' {
                         static_txt.pop();
