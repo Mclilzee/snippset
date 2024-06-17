@@ -18,19 +18,20 @@ impl SectionManager {
         let mut sections = Vec::new();
         let mut static_txt = Vec::new();
         for c in chars {
-            if c != '}' {
-                static_txt.push(c);
-                continue;
-            }
-
-            if let Some(c) = static_txt.last() {
-                if c == &'{' {
-                    static_txt.pop();
-                    sections.push(Section::body(static_txt.iter().collect()));
-                    static_txt = Vec::new();
-                } else {
-                    static_txt.push(*c);
+            if c == '\r' {
+                static_txt.push('\n');
+            } else if c != '}' {
+                if let Some(c) = static_txt.last() {
+                    if c == &'{' {
+                        static_txt.pop();
+                        sections.push(Section::body(static_txt.iter().collect()));
+                        static_txt = Vec::new();
+                    } else {
+                        static_txt.push(*c);
+                    }
                 }
+            } else {
+                static_txt.push(c);
             }
         }
 
@@ -93,6 +94,17 @@ mod test {
         assert_eq!(first, &section_body("Hello "));
         assert_eq!(second, &section_body(", another"));
         assert_eq!(tail, &section_tail(" tail moving forward."));
+    }
+
+    #[test]
+    fn replaces_windows_newline() {
+        let manager = SectionManager::new("Content\r {} \r new line \r");
+        assert_eq!(2, manager.sections.len());
+        let body = manager.sections.first().unwrap();
+        let tail = manager.sections.get(1).unwrap();
+
+        assert_eq!(body, &section_body("Content\n "));
+        assert_eq!(tail, &section_tail(" \n new line \n"));
     }
 
     fn section_body(str: &str) -> Section {
