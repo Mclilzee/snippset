@@ -13,38 +13,29 @@ type Snippets = HashMap<String, String>;
 
 fn main() -> Result<(), InquireError> {
     let config = Args::parse();
-    let file = get_file(&config).unwrap_or_else(handle_error);
-    let reader = BufReader::new(&file);
-    let map: HashMap<String, String> = serde_json::from_reader(reader).unwrap_or_else(handle_error);
-
     if config.add {
+        let file = File::open(&config.file)
+            .or_else(|_| File::create_new(&config.file))
+            .unwrap_or_else(handle_error);
+
+        let mut map: HashMap<String, String> =
+            serde_json::from_reader(BufReader::new(&file)).unwrap_or_else(handle_error);
         let title = Text::new("Title: ").prompt().unwrap_or_else(handle_error);
         let snippet = Text::new("Snippet: ").prompt().unwrap_or_else(handle_error);
-        let mut map = map;
         map.insert(title, snippet);
         serde_json::to_writer(file, &map).unwrap_or_else(handle_error);
         exit(0);
     }
 
-    let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
-    let snippet = map.get(key).unwrap();
+    // let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
+    // let snippet = map.get(key).unwrap();
 
-    let mut snippet_engine = SnippetEngine::new(key, snippet);
-    if let Err(e) = snippet_engine.start() {
-        println!("Error: {:?}\r", e);
-    }
+    // let mut snippet_engine = SnippetEngine::new(key, snippet);
+    // if let Err(e) = snippet_engine.start() {
+    //     println!("Error: {:?}\r", e);
+    // }
 
     Ok(())
-}
-
-fn get_file(config: &Args) -> Result<File, Error> {
-    let file = File::open(&config.file);
-    if file.is_err() && config.add {
-        let mut file = File::create_new(&config.file);
-        File::create_new(&config.file)
-    } else {
-        file
-    }
 }
 
 fn handle_error<E: Display, T>(e: E) -> T {
