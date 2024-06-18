@@ -20,10 +20,19 @@ impl Section {
             suffix: None,
         }
     }
+
+    pub fn text(&self) -> String {
+        let prefix = self.prefix.iter().collect::<String>();
+        let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
+
+        format!("{prefix}{suffix}")
+    }
 }
 
 #[cfg(test)]
 mod test {
+    use crate::sections::editable_text::EditableText;
+
     use super::Section;
 
     #[test]
@@ -38,5 +47,14 @@ mod test {
         let section = Section::tail("Hello world".chars().collect());
         assert_eq!(section.prefix, "Hello world".chars().collect::<Vec<char>>());
         assert!(section.suffix.is_none());
+    }
+
+    #[test]
+    fn returns_correct_text() {
+        let mut section = Section::body("Hello".chars().collect());
+        let mut editable = EditableText::new();
+        editable.chars = " World".chars().collect::<Vec<char>>();
+        section.suffix = Some(editable);
+        assert_eq!("Hello World".to_owned(), section.text());
     }
 }
