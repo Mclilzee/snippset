@@ -47,7 +47,7 @@ fn add_to_file(path: PathBuf) -> Result<(), InquireError> {
     };
 
     let title = Text::new("Title: ").prompt()?;
-    let snippet = Text::new("Snippet: ").prompt()?;
+    let snippet = Text::new("Snippet: ").prompt()?.replace("\\n", "\n");
 
     map.insert(title, snippet);
     serde_json::to_writer(File::create(&path)?, &map).unwrap_or_else(print_error);
