@@ -68,7 +68,8 @@ fn edit_file(path: PathBuf) -> Result<(), InquireError> {
     let title = Text::new("Title: ").with_initial_value(&key).prompt()?;
     let snippet = Text::new("Snippet: ")
         .with_initial_value(snippet)
-        .prompt()?;
+        .prompt()?
+        .replace("\\n", "\n");
 
     map.remove(&key);
     map.insert(title, snippet);
