@@ -50,12 +50,12 @@ fn add_to_file(path: PathBuf) -> Result<(), InquireError> {
     let snippet = Text::new("Snippet: ").prompt()?;
 
     map.insert(title, snippet);
-    serde_json::to_writer(File::create(&path)?, &map).unwrap();
+    serde_json::to_writer(File::create(&path)?, &map).unwrap_or_else(print_error);
     exit(0);
 }
 
 fn edit_file(path: PathBuf) -> Result<(), InquireError> {
-    let file = File::open(path)?;
+    let file = File::open(&path)?;
     let reader = BufReader::new(file);
     let mut map: Snippets = serde_json::from_reader(reader).unwrap_or_else(print_error);
 
@@ -72,6 +72,7 @@ fn edit_file(path: PathBuf) -> Result<(), InquireError> {
 
     map.remove(&key);
     map.insert(title, snippet);
+    serde_json::to_writer(File::create(&path)?, &map).unwrap_or_else(print_error);
     exit(0);
 }
 
