@@ -5,7 +5,6 @@ use clap::Parser;
 use inquire::{InquireError, Select, Text};
 use sections::snippet_engine::SnippetEngine;
 use std::fmt::Display;
-use std::io::{Error, ErrorKind, Write};
 use std::path::PathBuf;
 use std::process::exit;
 use std::{collections::HashMap, fs::File, io::BufReader};
@@ -19,16 +18,25 @@ fn main() -> Result<(), InquireError> {
         add_to_file(config.file)?;
     } else if config.edit {
         edit_file(config.file)?;
+    } else {
+        start_editing_engine(config.file)?;
     }
 
-    // let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
-    // let snippet = map.get(key).unwrap();
-    //
-    // let mut snippet_engine = SnippetEngine::new(key, snippet);
-    // if let Err(e) = snippet_engine.start() {
-    //     println!("Error: {:?}\r", e);
-    // }
-    //
+    Ok(())
+}
+
+fn start_editing_engine(path: PathBuf) -> Result<(), InquireError> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let map: Snippets = serde_json::from_reader(reader).unwrap_or_else(print_error);
+    let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
+    let snippet = map.get(key).unwrap();
+
+    let mut snippet_engine = SnippetEngine::new(key, snippet);
+    if let Err(e) = snippet_engine.start() {
+        println!("Error: {:?}\r", e);
+    }
+
     Ok(())
 }
 
