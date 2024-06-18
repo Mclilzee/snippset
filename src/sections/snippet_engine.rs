@@ -20,7 +20,7 @@ impl SnippetEngine {
         }
     }
 
-    pub fn start(&mut self) -> io::Result<()> {
+    pub fn start(&mut self) -> io::Result<String> {
         terminal::enable_raw_mode()?;
         self.printer.print_header(&self.title)?;
         loop {
@@ -49,7 +49,7 @@ impl SnippetEngine {
         }
 
         terminal::disable_raw_mode()?;
-        Ok(())
+        Ok(self.manager.text())
     }
 
     fn handle_input(&mut self, keycode: KeyCode) -> Result<(), ()> {
