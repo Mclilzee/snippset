@@ -39,6 +39,10 @@ impl EditableText {
     pub fn reset_cursor(&mut self) {
         self.cursor = self.chars.len();
     }
+
+    pub fn text(&self) -> String {
+        self.chars.iter().collect::<String>()
+    }
 }
 
 #[cfg(test)]
@@ -134,6 +138,12 @@ mod test {
         editable.delete();
         let result = editable.chars.iter().collect::<String>();
         assert_eq!("my fend".to_owned(), result);
+    }
+
+    #[test]
+    fn get_text() {
+        let editable = create_editable("Hello this is the edit");
+        assert_eq!("Hello this is the edit".to_owned(), editable.text())
     }
 
     #[test]
