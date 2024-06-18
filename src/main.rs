@@ -17,6 +17,8 @@ fn main() -> Result<(), InquireError> {
 
     if config.add {
         add_to_file(config.file)?;
+    } else if config.edit {
+        edit_file(config.file)?;
     }
 
     // let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
@@ -32,7 +34,7 @@ fn main() -> Result<(), InquireError> {
 
 fn add_to_file(path: PathBuf) -> Result<(), InquireError> {
     let mut map: Snippets = match File::open(&path) {
-        Ok(f) => serde_json::from_reader(BufReader::new(f)).unwrap_or_else(handle_error),
+        Ok(f) => serde_json::from_reader(BufReader::new(f)).unwrap_or_else(print_error),
         Err(_) => HashMap::new(),
     };
 
@@ -44,7 +46,28 @@ fn add_to_file(path: PathBuf) -> Result<(), InquireError> {
     exit(0);
 }
 
-fn handle_error<E: Display, T>(e: E) -> T {
+fn edit_file(path: PathBuf) -> Result<(), InquireError> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let mut map: Snippets = serde_json::from_reader(reader).unwrap_or_else(print_error);
+
+    let key = Select::new("Choose snippet to edit", map.keys().collect())
+        .prompt()?
+        .to_owned();
+
+    let snippet = map.get(&key).unwrap();
+
+    let title = Text::new("Title: ").with_initial_value(&key).prompt()?;
+    let snippet = Text::new("Snippet: ")
+        .with_initial_value(snippet)
+        .prompt()?;
+
+    map.remove(&key);
+    map.insert(title, snippet);
+    exit(0);
+}
+
+fn print_error<E: Display, T>(e: E) -> T {
     eprintln!("{e}");
     exit(1);
 }
