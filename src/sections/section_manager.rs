@@ -47,6 +47,10 @@ impl SectionManager {
 
         section.suffix.as_mut()
     }
+
+    pub fn text(&self) -> String {
+        self.sections.iter().map(|s| s.text()).collect()
+    }
 }
 
 #[cfg(test)]
@@ -94,6 +98,20 @@ mod test {
         assert_eq!(first, &section_body("Hello "));
         assert_eq!(second, &section_body(", another"));
         assert_eq!(tail, &section_tail(" tail moving forward."));
+    }
+
+    #[test]
+    fn return_finalized_text() {
+        let mut manager = SectionManager::new("Hello {}");
+        let editable = manager
+            .sections
+            .first_mut()
+            .unwrap()
+            .suffix
+            .as_mut()
+            .unwrap();
+        "World".chars().for_each(|c| editable.insert(c));
+        assert_eq!("Hello World".to_owned(), manager.text());
     }
 
     #[test]

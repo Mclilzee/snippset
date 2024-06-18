@@ -33,9 +33,7 @@ fn start_editing_engine(path: PathBuf) -> Result<(), InquireError> {
     let snippet = map.get(key).unwrap();
 
     let mut snippet_engine = SnippetEngine::new(key, snippet);
-    if let Err(e) = snippet_engine.start() {
-        println!("Error: {:?}\r", e);
-    }
+    let result = snippet_engine.start()?;
 
     Ok(())
 }
