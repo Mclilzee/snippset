@@ -43,10 +43,7 @@ Loading using the json file:
 }
 ```
 
-```bash
-? Choose snippet
-> Another snippet
-  Adding new json title snippet
-[↑↓ to move, enter to select, type to filter]
-```
+![Using program's snippets](./examples/loading-snippet.gif)
+
+
 ### Adding
