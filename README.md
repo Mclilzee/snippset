@@ -32,3 +32,21 @@ Options:
   -V, --version
           Print version
 
+## Examples 
+
+### Loading
+Loading using the json file:
+```json
+{
+  "Adding new json title snippet": "This is a snippet {}",
+  "Another snippet": "Yet another {} with multiple {} placeholders\nand new lines"
+}
+```
+
+```bash
+? Choose snippet
+> Another snippet
+  Adding new json title snippet
+[↑↓ to move, enter to select, type to filter]
+```
+### Adding
