@@ -50,3 +50,8 @@ Loading using the json file:
 With -a, -add flag you are able to add new snippets to already existing file. Or a new file will be created if such file does not exist.
 
 ![Adding snippet flag will create new file and add snippet to it](./examples/adding-snippet.gif)
+
+### Editing
+With -e, -edit flag you are able to edit already existing snippets inside a file.
+
+![Editing pre-existing snippet](./examples/editing-snippet.gif)
