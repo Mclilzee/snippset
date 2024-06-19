@@ -10,7 +10,7 @@ use std::path::PathBuf;
 )]
 pub struct Args {
     /// Path of snippet file to load, file must be valid json with key as the title and value as the snippet. Snippet is text put {} for areas that you want editable in the snippet. example "This text is {}"
-    pub file: PathBuf,
+    pub path: PathBuf,
 
     /// Add snippet to the selected json file
     #[arg(short = 'a', long = "add")]

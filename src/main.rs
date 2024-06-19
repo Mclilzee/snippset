@@ -15,11 +15,11 @@ fn main() -> Result<(), InquireError> {
     let config = Args::parse();
 
     if config.add {
-        add_to_file(config.file)?;
+        add_to_file(config.path)?;
     } else if config.edit {
-        edit_file(config.file)?;
+        edit_file(config.path)?;
     } else {
-        start_editing_engine(config.file)?;
+        start_editing_engine(config.path)?;
     }
 
     Ok(())
