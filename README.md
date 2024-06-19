@@ -47,3 +47,6 @@ Loading using the json file:
 
 
 ### Adding
+With -a, -add flag you are able to add new snippets to already existing file. Or a new file will be created if such file does not exist.
+
+![Adding snippet flag will create new file and add snippet to it](./examples/adding-snippet.gif)
