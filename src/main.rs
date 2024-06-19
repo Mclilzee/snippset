@@ -8,7 +8,6 @@ use std::fmt::Display;
 use std::path::PathBuf;
 use std::process::exit;
 use std::{collections::HashMap, fs::File, io::BufReader};
-
 type Snippets = HashMap<String, String>;
 
 fn main() -> Result<(), InquireError> {
@@ -34,7 +33,7 @@ fn start_editing_engine(path: PathBuf) -> Result<(), InquireError> {
 
     let mut snippet_engine = SnippetEngine::new(key, snippet);
     let result = snippet_engine.start()?;
-    println!("{}[2J{}", 27 as char, result);
+    print!("{esc}[2J{esc}[1;1H{result}", esc = 27 as char);
 
     Ok(())
 }
