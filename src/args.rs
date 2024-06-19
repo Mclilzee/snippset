@@ -6,13 +6,19 @@ use std::path::PathBuf;
     author,
     version,
     about,
-    long_about = "Takes a json file and load it for snippets, edit the areas specified with {} inside the text, Press Enter to move forward and Esc to move backward inside snippet areas. After you are done your complete snippet is printed out."
+    long_about = r#"Takes a json file and load it for snippets. The file needs to be valid json, the key will be used for the title, and the body will be used for the snippet. Use '{}' to mark an area as editable this will be the placeholder for replacement.
+Example: {
+        "Title": "Snippet {}",
+        "Another snippet", "Snippet mark new lines \nplaceholder {} can have multiple {} placeholders"
+        }
+
+Enter will move your cursor to the next placeholder if you have multiples, while Esc will move to previous ones."#
 )]
 pub struct Args {
-    /// Path of snippet file to load, file must be valid json with key as the title and value as the snippet. Snippet is text put {} for areas that you want editable in the snippet. example "This text is {}"
+    /// Path of snippet file to load, file must be valid json with string keys and string values"
     pub path: PathBuf,
 
-    /// Add snippet to the selected json file
+    /// Add snippet to the selected json file using interactive mode. If the selected json file does not exist, a new one in the path will be created.
     #[arg(short = 'a', long = "add")]
     pub add: bool,
 
