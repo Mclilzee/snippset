@@ -34,7 +34,7 @@ fn start_editing_engine(path: PathBuf) -> Result<(), InquireError> {
 
     let mut snippet_engine = SnippetEngine::new(key, snippet);
     let result = snippet_engine.start()?;
-    println!("{result}");
+    println!("{}[2J{}", 27 as char, result);
 
     Ok(())
 }
