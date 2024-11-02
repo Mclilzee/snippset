@@ -36,8 +36,8 @@ fn main() -> Result<(), InquireError> {
 
     let result = engine(config.path);
     execute!(stdout(), LeaveAlternateScreen)?;
-    result?;
-    Ok(())
+
+    result
 }
 
 fn start_editing_engine(path: PathBuf) -> Result<(), InquireError> {
