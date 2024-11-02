@@ -1,9 +1,7 @@
 use crate::sections::snippet_engine::SnippetEngine;
 use crate::Snippets;
-use inquire::{InquireError, Select, Text};
-use std::fmt::Display;
+use inquire::{Select, Text};
 use std::path::PathBuf;
-use std::process::exit;
 use std::{collections::HashMap, fs::File, io::BufReader};
 
 pub fn start_editing_engine(path: PathBuf) -> Result<(), String> {
@@ -36,7 +34,7 @@ pub fn add_to_file(path: PathBuf) -> Result<(), String> {
 
     map.insert(title, snippet);
     serde_json::to_writer(File::create(&path).map_err(|e| e.to_string())?, &map)
-        .map_err(|e| e.to_string());
+        .map_err(|e| e.to_string())?;
 
     Ok(())
 }
