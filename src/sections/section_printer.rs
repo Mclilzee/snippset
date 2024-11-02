@@ -12,16 +12,16 @@ pub struct SectionPrinter {
 }
 
 impl SectionPrinter {
-    pub fn new() -> Self {
-        Self { stdout: stdout() }
+    pub fn new() -> io::Result<Self> {
+        let mut stdout = stdout();
+        execute!(stdout, crossterm::terminal::EnterAlternateScreen)?;
+        Ok(Self { stdout })
     }
 
     pub fn print_header(&mut self, title: &str) -> io::Result<()> {
         let (width, _) = terminal::size()?;
         execute!(
             self.stdout,
-            cursor::MoveTo(0, 0),
-            terminal::Clear(terminal::ClearType::FromCursorDown),
             Print(format!("Snippet: {title}")),
             cursor::MoveDown(1),
             cursor::MoveToColumn(0),

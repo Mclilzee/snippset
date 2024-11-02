@@ -12,12 +12,12 @@ pub struct SnippetEngine {
 }
 
 impl SnippetEngine {
-    pub fn new(title: &str, snippet: &str) -> Self {
-        Self {
+    pub fn new(title: &str, snippet: &str) -> io::Result<Self> {
+        Ok(Self {
             title: title.to_owned(),
             manager: SectionManager::new(snippet),
-            printer: SectionPrinter::new(),
-        }
+            printer: SectionPrinter::new()?,
+        })
     }
 
     pub fn start(&mut self) -> io::Result<String> {
