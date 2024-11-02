@@ -1,26 +1,42 @@
 mod args;
 mod sections;
+
 use args::Args;
 use clap::Parser;
+use crossterm::{
+    execute,
+    cursor,
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+};
+
 use inquire::{InquireError, Select, Text};
 use sections::snippet_engine::SnippetEngine;
 use std::fmt::Display;
 use std::path::PathBuf;
 use std::process::exit;
-use std::{collections::HashMap, fs::File, io::BufReader};
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{stdout, BufReader},
+};
+
 type Snippets = HashMap<String, String>;
 
 fn main() -> Result<(), InquireError> {
     let config = Args::parse();
+    execute!(stdout(), EnterAlternateScreen, cursor::MoveTo(0, 0))?;
 
-    if config.add {
-        add_to_file(config.path)?;
+    let engine = if config.add {
+        add_to_file
     } else if config.edit {
-        edit_file(config.path)?;
+        edit_file
     } else {
-        start_editing_engine(config.path)?;
-    }
+        start_editing_engine
+    };
 
+    let result = engine(config.path);
+    execute!(stdout(), LeaveAlternateScreen)?;
+    result?;
     Ok(())
 }
 
