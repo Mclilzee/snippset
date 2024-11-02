@@ -12,13 +12,11 @@ use crossterm::{
 };
 use engine_modes::*;
 
-use inquire::InquireError;
-
 type Snippets = HashMap<String, String>;
 
-fn main() -> Result<(), InquireError> {
+fn main() -> Result<(), String> {
     let config = Args::parse();
-    execute!(stdout(), EnterAlternateScreen, cursor::MoveTo(0, 0))?;
+    execute!(stdout(), EnterAlternateScreen, cursor::MoveTo(0, 0)).map_err(|_| "Failed to start new terminal buffer".to_string())?;
 
     let engine = if config.add {
         add_to_file
@@ -29,7 +27,7 @@ fn main() -> Result<(), InquireError> {
     };
 
     let result = engine(config.path);
-    execute!(stdout(), LeaveAlternateScreen)?;
+    execute!(stdout(), LeaveAlternateScreen).map_err(|e| e.to_string())?;
 
     result
 }
