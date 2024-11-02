@@ -12,10 +12,8 @@ pub struct SectionPrinter {
 }
 
 impl SectionPrinter {
-    pub fn new() -> io::Result<Self> {
-        let mut stdout = stdout();
-        execute!(stdout, crossterm::terminal::EnterAlternateScreen)?;
-        Ok(Self { stdout })
+    pub fn new() -> Self {
+        Self { stdout: stdout() }
     }
 
     pub fn print_header(&mut self, title: &str) -> io::Result<()> {
