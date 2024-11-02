@@ -22,6 +22,7 @@ impl SectionPrinter {
         let (width, _) = terminal::size()?;
         execute!(
             self.stdout,
+            cursor::MoveTo(0, 0),
             Print(format!("Snippet: {title}")),
             cursor::MoveDown(1),
             cursor::MoveToColumn(0),
