@@ -3,12 +3,45 @@ use crossterm::{
     event::{read, Event, KeyCode, KeyEventKind, KeyModifiers},
     terminal,
 };
+use ratatui::{
+    buffer::Buffer,
+    layout::Rect,
+    style::Stylize,
+    symbols::border,
+    text::{Line, Text},
+    widgets::{Block, Paragraph, Widget},
+    DefaultTerminal, Frame,
+};
 use std::io;
 
 pub struct SnippetEngine {
     title: String,
     manager: SectionManager,
     printer: SectionPrinter,
+}
+
+impl Widget for &SnippetEngine {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        let title = Line::from(format!(" {} ", self.title).bold());
+        let instructions = Line::from(vec![
+            " Next Snipp ".into(),
+            "<Enter>".blue().bold(),
+            " Previous Snipp ".into(),
+            "<Esc> ".blue().bold(),
+        ]);
+
+        let block = Block::bordered()
+            .title(title.centered())
+            .title_bottom(instructions.centered())
+            .border_set(border::THICK);
+
+        let text = Text::from(vec![Line::from(vec!["Some text".into()])]);
+
+        Paragraph::new(text)
+            .centered()
+            .block(block)
+            .render(area, buf);
+    }
 }
 
 impl SnippetEngine {
@@ -76,5 +109,24 @@ impl SnippetEngine {
         }
 
         Ok(())
+    }
+
+    fn draw(&self, frame: &mut Frame) {
+        frame.render_widget(self, frame.area());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ratatui::{backend::TestBackend, Terminal};
+    use insta::assert_snapshot;
+
+    #[test]
+    fn test_render_app() {
+        let app = SnippetEngine::new("This is a title", "This is the body text");
+        let mut terminal = Terminal::new(TestBackend::new(80, 20)).unwrap();
+        terminal.draw(|frame| frame.render_widget(&app, frame.area())).unwrap();
+        assert_snapshot!(terminal.backend());
     }
 }

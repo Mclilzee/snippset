@@ -1,6 +1,7 @@
 use crossterm::style::Stylize;
 use crossterm::QueueableCommand;
 use crossterm::{cursor, execute, style::Print, terminal};
+use ratatui::widgets::canvas::Line;
 use std::io::{self, stdout, Stdout, Write};
 
 use crate::sections::section::Section;

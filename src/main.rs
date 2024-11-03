@@ -3,7 +3,6 @@ mod engine_modes;
 mod sections;
 
 use std::{collections::HashMap, io::stdout};
-
 use args::Args;
 use clap::Parser;
 use crossterm::{
@@ -11,6 +10,8 @@ use crossterm::{
     terminal::{EnterAlternateScreen, LeaveAlternateScreen},
 };
 use engine_modes::*;
+
+use ratatui::prelude::*;
 
 type Snippets = HashMap<String, String>;
 
