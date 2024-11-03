@@ -50,7 +50,6 @@ impl SnippetEngine {
     }
 
     pub fn start(&mut self) -> io::Result<String> {
-        crossterm::terminal::enable_raw_mode()?;
         let mut terminal = ratatui::init();
         loop {
             terminal.draw(|frame| self.draw(frame))?;
@@ -69,7 +68,6 @@ impl SnippetEngine {
             }
         }
 
-        crossterm::terminal::disable_raw_mode()?;
         ratatui::restore();
         Ok(self.manager.text())
     }
