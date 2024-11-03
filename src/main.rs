@@ -11,8 +11,6 @@ use crossterm::{
 };
 use engine_modes::*;
 
-use ratatui::prelude::*;
-
 type Snippets = HashMap<String, String>;
 
 fn main() -> Result<(), String> {

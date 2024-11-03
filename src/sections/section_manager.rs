@@ -48,6 +48,20 @@ impl SectionManager {
         section.suffix.as_mut()
     }
 
+    pub fn next_section(&mut self) -> Result<(), String> {
+        let next_index = self.active_index + 1;
+        if next_index < self.sections.len() {
+            self.active_index = next_index;
+            Err("There is no more sections".into())
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn previous_section(&mut self) {
+        self.active_index = usize::max(self.active_index - 1, 0);
+    }
+
     pub fn text(&self) -> String {
         self.sections.iter().map(|s| s.text()).collect()
     }

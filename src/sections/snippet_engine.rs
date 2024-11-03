@@ -54,22 +54,19 @@ impl SnippetEngine {
     pub fn start(&mut self) -> io::Result<String> {
         terminal::enable_raw_mode()?;
         loop {
-            match read()? {
-                Event::Key(event) => {
-                    if event.kind != KeyEventKind::Press {
-                        continue;
-                    }
-
-                    if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c')
-                    {
-                        break;
-                    };
-
-                    if self.handle_input(event.code).is_err() {
-                        break;
-                    };
+            if let Event::Key(event) = read()? {
+                if event.kind != KeyEventKind::Press {
+                    continue;
                 }
-                _ => (),
+
+                if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c')
+                {
+                    break;
+                };
+
+                if self.handle_input(event.code).is_err() {
+                    break;
+                };
             }
         }
 
@@ -77,10 +74,10 @@ impl SnippetEngine {
         Ok(self.manager.text())
     }
 
-    fn handle_input(&mut self, keycode: KeyCode) -> Result<(), ()> {
+    fn handle_input(&mut self, keycode: KeyCode) -> Result<(), String> {
         let editor = match self.manager.active_editable() {
             Some(ed) => ed,
-            None => return Err(()),
+            None => return Err("Couldn't retrieve editable section".into()),
         };
 
         match keycode {
@@ -88,15 +85,8 @@ impl SnippetEngine {
             KeyCode::Left => editor.move_left(),
             KeyCode::Right => editor.move_right(),
             KeyCode::Backspace => editor.delete(),
-            KeyCode::Enter => {
-                editor.reset_cursor();
-                self.manager.active_index += 1;
-            }
-            KeyCode::Esc => {
-                if self.manager.active_index > 0 {
-                    self.manager.active_index -= 1;
-                }
-            }
+            KeyCode::Esc => self.manager.previous_section(),
+            KeyCode::Enter => self.manager.next_section()?,
             _ => (),
         }
 
