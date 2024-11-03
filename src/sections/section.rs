@@ -23,11 +23,14 @@ impl Section {
 
     pub fn display_text(&self) -> String {
         let prefix = self.prefix.iter().collect::<String>();
-        let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
+        let suffix = self
+            .suffix
+            .as_ref()
+            .map(|e| format!("[{}{}]", e.text_before_cursor(), e.text_starting_at_cursor()))
+            .unwrap_or_default();
 
-        format!("{prefix}[{suffix}]")
+        format!("{prefix}{suffix}")
     }
-
 
     pub fn final_text(&self) -> String {
         let prefix = self.prefix.iter().collect::<String>();

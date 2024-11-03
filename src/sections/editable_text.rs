@@ -43,6 +43,14 @@ impl EditableText {
     pub fn text(&self) -> String {
         self.chars.iter().collect::<String>()
     }
+
+    pub fn text_before_cursor(&self) -> String {
+        self.chars.iter().take(self.cursor).collect::<String>()
+    }
+
+    pub fn text_starting_at_cursor(&self) -> String {
+        self.chars.iter().skip(self.cursor).collect::<String>()
+    }
 }
 
 #[cfg(test)]
@@ -141,9 +149,24 @@ mod test {
     }
 
     #[test]
-    fn get_text() {
+    fn final_text() {
         let editable = create_editable("Hello this is the edit");
         assert_eq!("Hello this is the edit".to_owned(), editable.text())
+    }
+
+
+    #[test]
+    fn text_before_cursor() {
+        let mut editable = create_editable("Pello this is the edit");
+        editable.cursor = 3;
+        assert_eq!("Pel".to_owned(), editable.text_before_cursor())
+    }
+
+    #[test]
+    fn text_after_cursor() {
+        let mut editable = create_editable("Another edit lets go");
+        editable.cursor = 4;
+        assert_eq!("her edit lets go".to_owned(), editable.text_starting_at_cursor())
     }
 
     #[test]
