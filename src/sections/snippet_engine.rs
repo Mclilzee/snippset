@@ -35,7 +35,7 @@ impl Widget for &SnippetEngine {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let text = Text::from(vec![Line::from(vec!["Some text".into()])]);
+        let text = Text::from(self.manager.text());
 
         Paragraph::new(text)
             .centered()
