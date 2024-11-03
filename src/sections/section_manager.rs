@@ -63,12 +63,12 @@ impl SectionManager {
         self.active_index = usize::max(self.active_index - 1, 0);
     }
 
-    pub fn text(&self) -> String {
+    pub fn final_text(&self) -> String {
         self.sections.iter().map(|s| s.final_text()).collect()
     }
 
-    pub fn editable_text(&self) -> String {
-        self.sections.iter().map(|s| s.final_text()).collect()
+    pub fn display_text(&self) -> String {
+        self.sections.iter().map(|s| s.display_text()).collect()
     }
 }
 
@@ -130,7 +130,7 @@ mod test {
             .as_mut()
             .unwrap();
         "World".chars().for_each(|c| editable.insert(c));
-        assert_eq!("Hello World".to_owned(), manager.text());
+        assert_eq!("Hello World".to_owned(), manager.final_text());
     }
 
     #[test]

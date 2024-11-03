@@ -32,7 +32,7 @@ impl Widget for &SnippetEngine {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let text = Text::from(self.manager.text());
+        let text = Text::from(self.manager.display_text());
 
         Paragraph::new(text)
             .centered()
@@ -69,7 +69,7 @@ impl SnippetEngine {
         }
 
         ratatui::restore();
-        Ok(self.manager.text())
+        Ok(self.manager.final_text())
     }
 
     fn handle_input(&mut self, keycode: KeyCode) -> Result<(), String> {
