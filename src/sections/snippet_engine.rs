@@ -32,10 +32,10 @@ impl Widget for &SnippetEngine {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let text = Text::from(self.manager.display_text());
-
+        let text = Text::from(self.manager.text_with_sections());
         Paragraph::new(text)
-            .centered()
+            .left_aligned()
+            .wrap(ratatui::widgets::Wrap { trim: true })
             .block(block)
             .render(area, buf);
     }
@@ -69,7 +69,7 @@ impl SnippetEngine {
         }
 
         ratatui::restore();
-        Ok(self.manager.final_text())
+        Ok(self.manager.text())
     }
 
     fn handle_input(&mut self, keycode: KeyCode) -> Result<(), String> {

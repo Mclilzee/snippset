@@ -21,22 +21,22 @@ impl Section {
         }
     }
 
-    pub fn display_text(&self) -> String {
+    pub fn text_with_sections(&self) -> String {
         let prefix = self.prefix.iter().collect::<String>();
-        let suffix = self
-            .suffix
-            .as_ref()
-            .map(|e| format!("[{}{}]", e.text_before_cursor(), e.text_starting_at_cursor()))
-            .unwrap_or_default();
+        let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
 
-        format!("{prefix}{suffix}")
+        format!("{prefix}[{suffix}]")
     }
 
-    pub fn final_text(&self) -> String {
+    pub fn text(&self) -> String {
         let prefix = self.prefix.iter().collect::<String>();
         let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
 
         format!("{prefix}{suffix}")
+    }
+
+    pub fn len(&self) -> usize {
+        self.prefix.len() + self.suffix.as_ref().map(|e| e.len()).unwrap_or_default()
     }
 }
 
@@ -66,7 +66,7 @@ mod test {
         let mut editable = EditableText::new();
         editable.chars = " World".chars().collect::<Vec<char>>();
         section.suffix = Some(editable);
-        assert_eq!("Hello[ World]".to_owned(), section.display_text());
+        assert_eq!("Hello[ World]".to_owned(), section.text_with_sections());
     }
 
     #[test]
@@ -75,6 +75,6 @@ mod test {
         let mut editable = EditableText::new();
         editable.chars = " World".chars().collect::<Vec<char>>();
         section.suffix = Some(editable);
-        assert_eq!("Hello World".to_owned(), section.final_text());
+        assert_eq!("Hello World".to_owned(), section.text());
     }
 }

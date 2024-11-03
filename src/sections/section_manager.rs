@@ -53,7 +53,9 @@ impl SectionManager {
         if next_index >= self.sections.len() {
             Err("There is no more sections".into())
         } else {
-            if let Some(e) = self.active_editable() { e.reset_cursor() }
+            if let Some(e) = self.active_editable() {
+                e.reset_cursor()
+            }
             self.active_index = next_index;
             Ok(())
         }
@@ -63,12 +65,32 @@ impl SectionManager {
         self.active_index = usize::max(self.active_index - 1, 0);
     }
 
-    pub fn final_text(&self) -> String {
-        self.sections.iter().map(|s| s.final_text()).collect()
+    pub fn text(&self) -> String {
+        self.sections.iter().map(|s| s.text()).collect()
     }
 
-    pub fn display_text(&self) -> String {
-        self.sections.iter().map(|s| s.display_text()).collect()
+    /// Return text with cursor position
+    pub fn text_with_sections(&self) -> String {
+        self.sections
+            .iter()
+            .map(|s| s.text_with_sections())
+            .collect()
+    }
+
+    pub fn cursor_position(&self) -> usize {
+        let len_before_cursor: usize = self
+            .sections
+            .iter()
+            .map(|s| s.len())
+            .take(self.active_index)
+            .sum();
+
+        len_before_cursor
+            + self
+                .sections
+                .get(self.active_index)
+                .and_then(|s| s.suffix.as_ref().map(|e| e.cursor))
+                .unwrap_or_default()
     }
 }
 
@@ -130,7 +152,7 @@ mod test {
             .as_mut()
             .unwrap();
         "World".chars().for_each(|c| editable.insert(c));
-        assert_eq!("Hello World".to_owned(), manager.final_text());
+        assert_eq!("Hello World".to_owned(), manager.text());
     }
 
     #[test]
