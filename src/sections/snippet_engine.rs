@@ -31,6 +31,7 @@ impl Widget for &SnippetEngine {
 
         let block = Block::bordered()
             .title(title.centered())
+            .padding(ratatui::widgets::Padding::top(1))
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
