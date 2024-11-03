@@ -64,7 +64,11 @@ impl SectionManager {
     }
 
     pub fn text(&self) -> String {
-        self.sections.iter().map(|s| s.text()).collect()
+        self.sections.iter().map(|s| s.final_text()).collect()
+    }
+
+    pub fn editable_text(&self) -> String {
+        self.sections.iter().map(|s| s.final_text()).collect()
     }
 }
 

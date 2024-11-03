@@ -21,7 +21,15 @@ impl Section {
         }
     }
 
-    pub fn text(&self) -> String {
+    pub fn display_text(&self) -> String {
+        let prefix = self.prefix.iter().collect::<String>();
+        let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
+
+        format!("{prefix}[{suffix}]")
+    }
+
+
+    pub fn final_text(&self) -> String {
         let prefix = self.prefix.iter().collect::<String>();
         let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
 
@@ -50,11 +58,20 @@ mod test {
     }
 
     #[test]
-    fn returns_correct_text() {
+    fn display_text() {
         let mut section = Section::body("Hello".chars().collect());
         let mut editable = EditableText::new();
         editable.chars = " World".chars().collect::<Vec<char>>();
         section.suffix = Some(editable);
-        assert_eq!("Hello World".to_owned(), section.text());
+        assert_eq!("Hello[ World]".to_owned(), section.display_text());
+    }
+
+    #[test]
+    fn final_text() {
+        let mut section = Section::body("Hello".chars().collect());
+        let mut editable = EditableText::new();
+        editable.chars = " World".chars().collect::<Vec<char>>();
+        section.suffix = Some(editable);
+        assert_eq!("Hello World".to_owned(), section.final_text());
     }
 }
