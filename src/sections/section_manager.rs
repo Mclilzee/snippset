@@ -50,10 +50,11 @@ impl SectionManager {
 
     pub fn next_section(&mut self) -> Result<(), String> {
         let next_index = self.active_index + 1;
-        if next_index < self.sections.len() {
-            self.active_index = next_index;
+        if next_index >= self.sections.len() {
             Err("There is no more sections".into())
         } else {
+            if let Some(e) = self.active_editable() { e.reset_cursor() }
+            self.active_index = next_index;
             Ok(())
         }
     }

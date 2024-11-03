@@ -1,8 +1,5 @@
 use super::section_manager::SectionManager;
-use crossterm::{
-    event::{read, Event, KeyCode, KeyEventKind, KeyModifiers},
-    terminal,
-};
+use crossterm::event::{read, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -10,7 +7,7 @@ use ratatui::{
     symbols::border,
     text::{Line, Text},
     widgets::{Block, Paragraph, Widget},
-    DefaultTerminal, Frame,
+    Frame,
 };
 use std::io;
 
@@ -53,15 +50,16 @@ impl SnippetEngine {
     }
 
     pub fn start(&mut self) -> io::Result<String> {
-        terminal::enable_raw_mode()?;
+        crossterm::terminal::enable_raw_mode()?;
+        let mut terminal = ratatui::init();
         loop {
+            terminal.draw(|frame| self.draw(frame))?;
             if let Event::Key(event) = read()? {
                 if event.kind != KeyEventKind::Press {
                     continue;
                 }
 
-                if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c')
-                {
+                if event.modifiers == KeyModifiers::CONTROL && event.code == KeyCode::Char('c') {
                     break;
                 };
 
@@ -71,7 +69,8 @@ impl SnippetEngine {
             }
         }
 
-        terminal::disable_raw_mode()?;
+        crossterm::terminal::disable_raw_mode()?;
+        ratatui::restore();
         Ok(self.manager.text())
     }
 
