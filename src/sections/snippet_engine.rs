@@ -1,4 +1,4 @@
-use super::{section_manager::SectionManager, section_printer::SectionPrinter};
+use super::section_manager::SectionManager;
 use crossterm::{
     event::{read, Event, KeyCode, KeyEventKind, KeyModifiers},
     terminal,
@@ -17,7 +17,6 @@ use std::io;
 pub struct SnippetEngine {
     title: String,
     manager: SectionManager,
-    printer: SectionPrinter,
 }
 
 impl Widget for &SnippetEngine {
@@ -49,16 +48,12 @@ impl SnippetEngine {
         Self {
             title: title.to_owned(),
             manager: SectionManager::new(snippet),
-            printer: SectionPrinter::new(),
         }
     }
 
     pub fn start(&mut self) -> io::Result<String> {
         terminal::enable_raw_mode()?;
-        self.printer.print_header(&self.title)?;
         loop {
-            self.printer
-                .print_body(&self.manager.sections, self.manager.active_index)?;
             match read()? {
                 Event::Key(event) => {
                     if event.kind != KeyEventKind::Press {
@@ -73,9 +68,6 @@ impl SnippetEngine {
                     if self.handle_input(event.code).is_err() {
                         break;
                     };
-                }
-                Event::Resize(_, _) => {
-                    let _ = self.printer.print_header(&self.title);
                 }
                 _ => (),
             }
@@ -119,14 +111,16 @@ impl SnippetEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ratatui::{backend::TestBackend, Terminal};
     use insta::assert_snapshot;
+    use ratatui::{backend::TestBackend, Terminal};
 
     #[test]
     fn test_render_app() {
         let app = SnippetEngine::new("This is a title", "This is the body text");
         let mut terminal = Terminal::new(TestBackend::new(80, 20)).unwrap();
-        terminal.draw(|frame| frame.render_widget(&app, frame.area())).unwrap();
+        terminal
+            .draw(|frame| frame.render_widget(&app, frame.area()))
+            .unwrap();
         assert_snapshot!(terminal.backend());
     }
 }
