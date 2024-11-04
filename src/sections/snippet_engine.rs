@@ -102,7 +102,7 @@ impl SnippetEngine {
             KeyCode::Left => editor.move_left(),
             KeyCode::Right => editor.move_right(),
             KeyCode::Backspace => editor.delete(),
-            KeyCode::Esc => self.manager.previous_section(),
+            KeyCode::Esc => self.manager.previous_section().unwrap_or_default(),
             KeyCode::Enter => self.manager.next_section()?,
             _ => (),
         }

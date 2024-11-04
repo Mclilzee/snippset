@@ -68,8 +68,13 @@ impl SectionManager {
         }
     }
 
-    pub fn previous_section(&mut self) {
-        self.active_index = usize::max(self.active_index - 1, 0);
+    pub fn previous_section(&mut self) -> Result<(), String> {
+        if self.active_index > 0 {
+            self.active_index -= 1;
+            Ok(())
+        } else {
+            Err("Cannot go bellow zero".to_owned())
+        }
     }
 
     pub fn section_text(&self) -> Vec<SectionText> {
@@ -191,20 +196,21 @@ mod test {
         assert_eq!(manager.active_index, 0);
         let _ = manager.next_section();
         assert_eq!(manager.active_index, 1);
-        manager.previous_section();
+        assert!(manager.previous_section().is_ok());
         assert_eq!(manager.active_index, 0);
-        manager.previous_section();
+        assert!(manager.previous_section().is_err());
         assert_eq!(manager.active_index, 0);
     }
 
     #[test]
     fn section_resets_cursor_position_on_change() {
         let mut manager = SectionManager::new("text {} more {}");
-        let edtiable = manager.active_editable().unwrap();
-        edtiable.cursor = 2;
-        manager.next_section();
+        manager.active_editable().unwrap().cursor = 2;
+        assert_eq!(manager.active_editable().unwrap().cursor, 2);
+        let _ = manager.next_section();
+        let _ = manager.previous_section();
+        assert_eq!(manager.active_editable().unwrap().cursor, 0);
     }
-
 
     fn section_body(str: &str) -> Section {
         Section::body(str.chars().collect())
