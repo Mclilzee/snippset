@@ -1,5 +1,6 @@
 mod args;
 mod engine_modes;
+mod snippet_engine;
 mod sections;
 
 use std::{collections::HashMap, io::stdout};

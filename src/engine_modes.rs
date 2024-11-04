@@ -1,4 +1,4 @@
-use crate::sections::snippet_engine::SnippetEngine;
+use crate::snippet_engine::SnippetEngine;
 use crate::Snippets;
 use inquire::{Select, Text};
 use std::path::PathBuf;

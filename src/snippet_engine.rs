@@ -1,4 +1,4 @@
-use super::section_manager::SectionManager;
+use crate::sections::section_manager::SectionManager;
 use crossterm::event::{read, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     buffer::Buffer,

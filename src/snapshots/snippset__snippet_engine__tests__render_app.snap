@@ -1,5 +1,5 @@
 ---
-source: src/sections/snippet_engine.rs
+source: src/snippet_engine.rs
 expression: terminal.backend()
 snapshot_kind: text
 ---
