@@ -3,7 +3,7 @@ use crossterm::event::{read, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
-    style::Stylize,
+    style::{Color, Stylize},
     symbols::border,
     text::Line,
     widgets::{Block, Paragraph, Widget},
@@ -32,7 +32,6 @@ impl Widget for &SnippetEngine {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let mut cursor = self.manager.cursor_position();
         let text: Vec<_> = self
             .manager
             .section_text()
@@ -40,7 +39,6 @@ impl Widget for &SnippetEngine {
             .flat_map(|s| {
                 if let Some(suffix) = s.suffix.as_ref() {
                     if suffix.is_empty() {
-                        cursor += 1;
                         return vec![s.prefix.into(), "^".bold().yellow().underlined()];
                     }
                 };

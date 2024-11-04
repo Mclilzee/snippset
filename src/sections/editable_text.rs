@@ -36,6 +36,10 @@ impl EditableText {
         }
     }
 
+    pub fn cursor_char(&self) -> Option<char> {
+        self.chars.get(self.cursor).copied()
+    }
+
     pub fn reset_cursor(&mut self) {
         self.cursor = self.chars.len();
     }
@@ -172,9 +176,20 @@ mod test {
         assert_eq!("osne".to_owned(), result);
     }
 
+    #[test]
+    fn get_cursor_char() {
+        let mut editable = create_editable("random string");
+        editable.move_right();
+        editable.move_right();
+        editable.move_right();
+        assert_eq!(editable.cursor_char(), Some('m'));
+    }
+
     fn create_editable(suffix: &str) -> EditableText {
         let mut editable = EditableText::new();
         suffix.chars().for_each(|c| editable.insert(c));
         editable
     }
+
+
 }
