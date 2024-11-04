@@ -151,6 +151,18 @@ mod test {
     }
 
     #[test]
+    fn length() {
+        let editable = create_editable("Hello ");
+        assert_eq!(editable.len(), 6)
+    }
+
+    #[test]
+    fn empty_length() {
+        let editable = EditableText::new();
+        assert_eq!(editable.len(), 0)
+    }
+
+    #[test]
     fn insert_at_cursor_position() {
         let mut editable = create_editable("one");
         editable.move_left();
