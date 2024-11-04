@@ -108,6 +108,17 @@ mod test {
     use crate::sections::{section::Section, section_manager::SectionManager};
 
     #[test]
+    fn next_section() {
+        let mut manager = SectionManager::new("text {} more {}");
+        assert_eq!(3, manager.sections.len());
+        assert_eq!(manager.active_index, 0);
+        assert!(manager.next_section().is_ok());
+        assert_eq!(manager.active_index, 1);
+        assert!(manager.next_section().is_err());
+        assert_eq!(manager.active_index, 1);
+    }
+
+    #[test]
     fn return_string_as_section_tail() {
         let manager = SectionManager::new("text");
         assert_eq!(1, manager.sections.len());
