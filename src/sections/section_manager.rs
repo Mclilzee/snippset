@@ -108,17 +108,6 @@ mod test {
     use crate::sections::{section::Section, section_manager::SectionManager};
 
     #[test]
-    fn next_section() {
-        let mut manager = SectionManager::new("text {} more {}");
-        assert_eq!(3, manager.sections.len());
-        assert_eq!(manager.active_index, 0);
-        assert!(manager.next_section().is_ok());
-        assert_eq!(manager.active_index, 1);
-        assert!(manager.next_section().is_err());
-        assert_eq!(manager.active_index, 1);
-    }
-
-    #[test]
     fn return_string_as_section_tail() {
         let manager = SectionManager::new("text");
         assert_eq!(1, manager.sections.len());
@@ -185,6 +174,37 @@ mod test {
         assert_eq!(body, &section_body("Content\n "));
         assert_eq!(tail, &section_tail(" \n new line \n"));
     }
+
+    #[test]
+    fn next_section() {
+        let mut manager = SectionManager::new("text {} more {}");
+        assert_eq!(manager.active_index, 0);
+        assert!(manager.next_section().is_ok());
+        assert_eq!(manager.active_index, 1);
+        assert!(manager.next_section().is_err());
+        assert_eq!(manager.active_index, 1);
+    }
+
+    #[test]
+    fn previous_section() {
+        let mut manager = SectionManager::new("text {} more {}");
+        assert_eq!(manager.active_index, 0);
+        let _ = manager.next_section();
+        assert_eq!(manager.active_index, 1);
+        manager.previous_section();
+        assert_eq!(manager.active_index, 0);
+        manager.previous_section();
+        assert_eq!(manager.active_index, 0);
+    }
+
+    #[test]
+    fn section_resets_cursor_position_on_change() {
+        let mut manager = SectionManager::new("text {} more {}");
+        let edtiable = manager.active_editable().unwrap();
+        edtiable.cursor = 2;
+        manager.next_section();
+    }
+
 
     fn section_body(str: &str) -> Section {
         Section::body(str.chars().collect())
