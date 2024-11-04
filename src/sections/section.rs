@@ -61,4 +61,13 @@ mod test {
         section.suffix = Some(editable);
         assert_eq!("Hello World".to_owned(), section.text());
     }
+
+    #[test]
+    fn length() {
+        let mut section = Section::body("Some text goes".chars().collect());
+        let mut editable = EditableText::new();
+        editable.chars = "with".chars().collect::<Vec<char>>();
+        section.suffix = Some(editable);
+        assert_eq!(section.len(), 18);
+    }
 }
