@@ -21,13 +21,6 @@ impl Section {
         }
     }
 
-    pub fn text_with_sections(&self) -> String {
-        let prefix = self.prefix.iter().collect::<String>();
-        let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
-
-        format!("{prefix}[{suffix}]")
-    }
-
     pub fn text(&self) -> String {
         let prefix = self.prefix.iter().collect::<String>();
         let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();

@@ -1,8 +1,13 @@
 use super::{editable_text::EditableText, section::Section};
 
+pub struct SectionText {
+    pub prefix: String,
+    pub suffix: Option<String>,
+}
+
 pub struct SectionManager {
     pub sections: Vec<Section>,
-    pub active_index: usize,
+    active_index: usize,
 }
 
 impl SectionManager {
@@ -65,16 +70,18 @@ impl SectionManager {
         self.active_index = usize::max(self.active_index - 1, 0);
     }
 
-    pub fn text(&self) -> String {
-        self.sections.iter().map(|s| s.text()).collect()
-    }
-
-    /// Return text with cursor position
-    pub fn text_with_sections(&self) -> String {
+    pub fn section_text(&self) -> Vec<SectionText> {
         self.sections
             .iter()
-            .map(|s| s.text_with_sections())
+            .map(|s| SectionText {
+                prefix: s.prefix.iter().collect::<String>(),
+                suffix: s.suffix.as_ref().map(|e| e.text()),
+            })
             .collect()
+    }
+
+    pub fn text(&self) -> String {
+        self.sections.iter().map(|s| s.text()).collect()
     }
 
     pub fn cursor_position(&self) -> usize {

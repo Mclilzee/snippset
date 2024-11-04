@@ -32,7 +32,16 @@ impl Widget for &SnippetEngine {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let text = Text::from(self.manager.text_with_sections());
+        let text: String = self.manager.section_text().into_iter().flat_map(|s| {
+            vec![
+                s.prefix,
+                s.suffix.map(|s| s.bold().yellow().underlined()).unwrap_or_default().to_string()
+            ]
+        }).collect();
+
+        let text = Text::from(text.bold().yellow().underlined());
+        let cursor = self.manager.cursor_position();
+
         Paragraph::new(text)
             .left_aligned()
             .wrap(ratatui::widgets::Wrap { trim: true })
