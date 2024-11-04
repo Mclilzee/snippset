@@ -14,9 +14,8 @@ pub fn start_editing_engine(path: PathBuf) -> Result<(), String> {
     let snippet = map.get(key).unwrap();
 
     let mut snippet_engine = SnippetEngine::new(key, snippet);
-    let result = snippet_engine.start().map_err(|e| e.to_string())?;
-    print!("{esc}[2J{esc}[1;1H{result}", esc = 27 as char);
-
+    let _result = snippet_engine.start().map_err(|e| e.to_string())?;
+    println!("Copied result to clipboard");
     Ok(())
 }
 

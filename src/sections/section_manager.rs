@@ -103,12 +103,7 @@ impl SectionManager {
             + self
                 .sections
                 .get(self.active_index)
-                .and_then(|s| {
-                    s.suffix.as_ref().map(|e| {
-                        println!("{}", e.cursor);
-                        s.prefix.len() + e.cursor
-                    })
-                })
+                .and_then(|s| s.suffix.as_ref().map(|e| s.prefix.len() + e.cursor))
                 .unwrap_or_default()
     }
 }
