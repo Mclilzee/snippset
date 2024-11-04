@@ -32,15 +32,25 @@ impl Widget for &SnippetEngine {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let text: String = self.manager.section_text().into_iter().flat_map(|s| {
+        let mut cursor = self.manager.cursor_position();
+        let text: Vec<_> = self.manager.section_text().into_iter().flat_map(|s| {
+            if let Some(suffix) = s.suffix.as_ref() {
+                if suffix.is_empty() {
+                    cursor += 1;
+                    return vec![
+                        s.prefix.into(),
+                        "^".bold().yellow().underlined(),
+                    ]
+                }
+            };
+
             vec![
-                s.prefix,
-                s.suffix.map(|s| s.bold().yellow().underlined()).unwrap_or_default().to_string()
+                s.prefix.into(),
+                s.suffix.unwrap_or_default().bold().yellow().underlined()
             ]
         }).collect();
 
-        let text = Text::from(text.bold().yellow().underlined());
-        let cursor = self.manager.cursor_position();
+        let text = Line::from(text);
 
         Paragraph::new(text)
             .left_aligned()
