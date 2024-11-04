@@ -5,7 +5,7 @@ use ratatui::{
     layout::Rect,
     style::Stylize,
     symbols::border,
-    text::{Line, Text},
+    text::Line,
     widgets::{Block, Paragraph, Widget},
     Frame,
 };
@@ -28,31 +28,31 @@ impl Widget for &SnippetEngine {
 
         let block = Block::bordered()
             .title(title.centered())
-            .padding(ratatui::widgets::Padding::top(1))
+            .padding(ratatui::widgets::Padding::uniform(1))
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
         let mut cursor = self.manager.cursor_position();
-        let text: Vec<_> = self.manager.section_text().into_iter().flat_map(|s| {
-            if let Some(suffix) = s.suffix.as_ref() {
-                if suffix.is_empty() {
-                    cursor += 1;
-                    return vec![
-                        s.prefix.into(),
-                        "^".bold().yellow().underlined(),
-                    ]
-                }
-            };
+        let text: Vec<_> = self
+            .manager
+            .section_text()
+            .into_iter()
+            .flat_map(|s| {
+                if let Some(suffix) = s.suffix.as_ref() {
+                    if suffix.is_empty() {
+                        cursor += 1;
+                        return vec![s.prefix.into(), "^".bold().yellow().underlined()];
+                    }
+                };
 
-            vec![
-                s.prefix.into(),
-                s.suffix.unwrap_or_default().bold().yellow().underlined()
-            ]
-        }).collect();
+                vec![
+                    s.prefix.into(),
+                    s.suffix.unwrap_or_default().bold().yellow().underlined(),
+                ]
+            })
+            .collect();
 
-        let text = Line::from(text);
-
-        Paragraph::new(text)
+        Paragraph::new(Line::from(text))
             .left_aligned()
             .wrap(ratatui::widgets::Wrap { trim: true })
             .block(block)
