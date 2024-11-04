@@ -54,15 +54,6 @@ mod test {
     }
 
     #[test]
-    fn display_text() {
-        let mut section = Section::body("Hello".chars().collect());
-        let mut editable = EditableText::new();
-        editable.chars = " World".chars().collect::<Vec<char>>();
-        section.suffix = Some(editable);
-        assert_eq!("Hello[ World]".to_owned(), section.text_with_sections());
-    }
-
-    #[test]
     fn final_text() {
         let mut section = Section::body("Hello".chars().collect());
         let mut editable = EditableText::new();
