@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct EditableText {
     pub cursor: usize,
     pub chars: Vec<char>,
@@ -40,7 +40,7 @@ impl EditableText {
         self.chars.get(self.cursor).copied()
     }
 
-    pub fn reset_cursor(&mut self) {
+    pub fn cursor_to_right_edge(&mut self) {
         self.cursor = self.chars.len();
     }
 
@@ -132,7 +132,7 @@ mod test {
         editable.move_left();
         editable.move_left();
         assert_eq!(4, editable.cursor);
-        editable.reset_cursor();
+        editable.cursor_to_right_edge();
         assert_eq!(6, editable.cursor);
     }
 
@@ -178,11 +178,22 @@ mod test {
 
     #[test]
     fn get_cursor_char() {
-        let mut editable = create_editable("random string");
-        editable.move_right();
-        editable.move_right();
-        editable.move_right();
-        assert_eq!(editable.cursor_char(), Some('m'));
+        let mut editable = create_editable("1234");
+        assert_eq!(editable.cursor_char(), None);
+        editable.move_left();
+        editable.move_left();
+        editable.move_left();
+        assert_eq!(editable.cursor_char(), Some('2'));
+        editable.move_left();
+        assert_eq!(editable.cursor_char(), Some('1'));
+        editable.move_left();
+        assert_eq!(editable.cursor_char(), Some('1'));
+    }
+
+    #[test]
+    fn cursor_char_when_editable_is_empty() {
+        let editable = create_editable("");
+        assert_eq!(editable.cursor_char(), None);
     }
 
     fn create_editable(suffix: &str) -> EditableText {
@@ -190,6 +201,4 @@ mod test {
         suffix.chars().for_each(|c| editable.insert(c));
         editable
     }
-
-
 }

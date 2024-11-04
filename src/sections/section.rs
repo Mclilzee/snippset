@@ -1,5 +1,4 @@
 use super::editable_text::EditableText;
-
 #[derive(Debug, PartialEq)]
 pub struct Section {
     pub prefix: Vec<char>,

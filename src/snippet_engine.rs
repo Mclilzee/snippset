@@ -3,7 +3,7 @@ use crossterm::event::{read, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
-    style::{Color, Stylize},
+    style::Stylize,
     symbols::border,
     text::Line,
     widgets::{Block, Paragraph, Widget},

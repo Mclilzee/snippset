@@ -61,7 +61,7 @@ impl SectionManager {
             Err("There is no more sections".into())
         } else {
             if let Some(e) = self.active_editable() {
-                e.reset_cursor()
+                e.cursor_to_right_edge()
             }
             self.active_index = next_index;
             Ok(())
@@ -198,23 +198,27 @@ mod test {
         let mut manager = SectionManager::new("Hello {}, another{} ok.");
         assert_eq!(manager.cursor_char(), None);
         manager.active_editable().unwrap().insert('s');
+        assert_eq!(manager.cursor_char(), None);
+        manager.active_editable().unwrap().move_left();
         assert_eq!(manager.cursor_char(), Some('s'));
     }
 
-    //#[test]
-    //fn cursor_position_does_not_depend_on_other_sections_cursor() {
-    //    let mut manager = SectionManager::new("Hello {}, another{} ok.");
-    //    assert_eq!(manager.cursor_position(), 6);
-    //    let _ = manager.next_section();
-    //    assert_eq!(manager.cursor_position(), 15);
-    //    manager
-    //        .sections
-    //        .get_mut(0)
-    //        .and_then(|s| s.suffix.as_mut())
-    //        .unwrap()
-    //        .cursor = 3;
-    //    assert_eq!(manager.cursor_position(), 15);
-    //}
+    #[test]
+    fn cursor_position_does_not_depend_on_other_sections_cursor() {
+        let mut manager = SectionManager::new("Hello {}, another{} ok.");
+        assert_eq!(manager.cursor_char(), None);
+        let _ = manager.next_section();
+        manager.active_editable().unwrap().insert('s');
+        manager.active_editable().unwrap().move_left();
+        assert_eq!(manager.cursor_char(), Some('s'));
+        manager
+            .sections
+            .get_mut(0)
+            .and_then(|s| s.suffix.as_mut())
+            .unwrap()
+            .cursor = 3;
+        assert_eq!(manager.cursor_char(), Some('s'));
+    }
 
     #[test]
     fn section_resets_cursor_position_on_change() {
