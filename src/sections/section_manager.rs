@@ -103,7 +103,10 @@ impl SectionManager {
             + self
                 .sections
                 .get(self.active_index)
-                .and_then(|s| s.suffix.as_ref().map(|e| e.cursor))
+                .and_then(|s| s.suffix.as_ref().map(|e| {
+                println!("{}", e.cursor);
+                s.prefix.len() + e.cursor
+            }))
                 .unwrap_or_default()
     }
 }
@@ -155,6 +158,7 @@ mod test {
         assert_eq!(tail, &section_tail(" tail moving forward."));
     }
 
+
     #[test]
     fn return_finalized_text() {
         let mut manager = SectionManager::new("Hello {}");
@@ -200,6 +204,16 @@ mod test {
         assert_eq!(manager.active_index, 0);
         assert!(manager.previous_section().is_err());
         assert_eq!(manager.active_index, 0);
+    }
+
+    #[test]
+    fn cursor_position() {
+        let mut manager = SectionManager::new("Hello {}, another{} ok.");
+        assert_eq!(manager.cursor_position(), 6);
+        let _ = manager.next_section();
+        assert_eq!(manager.cursor_position(), 15);
+        manager.active_editable().unwrap().cursor = 3;
+        assert_eq!(manager.cursor_position(), 18);
     }
 
     #[test]
