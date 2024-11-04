@@ -70,4 +70,18 @@ mod test {
         section.suffix = Some(editable);
         assert_eq!(section.len(), 18);
     }
+
+    #[test]
+    fn empty_editable() {
+        let mut section = Section::body("Some ".chars().collect());
+        section.suffix = None;
+        assert_eq!(section.len(), 5);
+    }
+
+    #[test]
+    fn empty_length() {
+        let mut section = Section::body("".chars().collect());
+        section.suffix = None;
+        assert_eq!(section.len(), 0);
+    }
 }
