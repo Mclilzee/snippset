@@ -49,20 +49,16 @@ impl EditableText {
         self.chars.iter().collect::<String>()
     }
 
-    pub fn len(&self) -> usize {
-        self.chars.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.chars.len() == 0
-    }
-
     pub fn chars(&self) -> Vec<char> {
         self.chars.clone()
     }
 
-    pub fn cursor(&self) -> usize {
-        self.cursor
+    pub fn cursor(&self) -> Option<usize> {
+        if self.chars.is_empty() {
+            None
+        } else {
+            Some(self.cursor)
+        }
     }
 }
 
@@ -166,19 +162,6 @@ mod test {
         let editable = create_editable("Hello this is the edit");
         assert_eq!("Hello this is the edit".to_owned(), editable.text())
     }
-
-    #[test]
-    fn length() {
-        let editable = create_editable("Hello ");
-        assert_eq!(editable.len(), 6)
-    }
-
-    #[test]
-    fn empty_length() {
-        let editable = EditableText::new();
-        assert_eq!(editable.len(), 0)
-    }
-
     #[test]
     fn insert_at_cursor_position() {
         let mut editable = create_editable("one");
@@ -190,23 +173,13 @@ mod test {
     }
 
     #[test]
-    fn get_cursor_char() {
-        let mut editable = create_editable("1234");
-        assert_eq!(editable.section_text(), None);
+    fn cursor_position() {
+        let mut editable = create_editable("Some Text");
         editable.move_left();
         editable.move_left();
-        editable.move_left();
-        assert_eq!(editable.section_text(), Some('2'));
-        editable.move_left();
-        assert_eq!(editable.section_text(), Some('1'));
-        editable.move_left();
-        assert_eq!(editable.section_text(), Some('1'));
-    }
-
-    #[test]
-    fn cursor_char_when_editable_is_empty() {
-        let editable = create_editable("");
-        assert_eq!(editable.section_text(), None);
+        editable.insert('s');
+        let result = editable.chars.iter().collect::<String>();
+        assert_eq!("osne".to_owned(), result);
     }
 
     fn create_editable(suffix: &str) -> EditableText {
@@ -214,4 +187,5 @@ mod test {
         suffix.chars().for_each(|c| editable.insert(c));
         editable
     }
+
 }
