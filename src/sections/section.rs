@@ -22,13 +22,13 @@ impl Section {
 
     pub fn text(&self) -> String {
         let prefix = self.prefix.iter().collect::<String>();
-        let suffix = self.suffix.as_ref().map(|e| e.text()).unwrap_or_default();
+        let suffix = self
+            .suffix
+            .as_ref()
+            .map(|e| e.chars().into_iter().collect::<String>())
+            .unwrap_or_default();
 
         format!("{prefix}{suffix}")
-    }
-
-    pub fn chars(&self) -> Vec<char> {
-        todo!()
     }
 }
 

@@ -40,10 +40,6 @@ impl EditableText {
         self.cursor = self.chars.len();
     }
 
-    pub fn text(&self) -> String {
-        self.chars.iter().collect::<String>()
-    }
-
     pub fn chars(&self) -> Vec<char> {
         self.chars.clone()
     }
@@ -151,8 +147,9 @@ mod test {
     #[test]
     fn text() {
         let editable = create_editable("Hello this is the edit");
-        assert_eq!("Hello this is the edit".to_owned(), editable.text())
+        assert_eq!("Hello this is the edit".chars().collect::<Vec<char>>(), editable.chars())
     }
+
     #[test]
     fn insert_at_cursor_position() {
         let mut editable = create_editable("one");
