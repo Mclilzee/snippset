@@ -32,33 +32,38 @@ impl Widget for &SnippetEngine {
             .title_bottom(instructions.centered())
             .border_set(border::DOUBLE);
 
-        let mut carry_over = false;
         let text: Vec<_> = self
             .manager
             .sections
             .iter()
             .enumerate()
             .flat_map(|(i, s)| {
-                let (mut prefix, mut suffix) = SnippetEngine::lines_from_section(s);
+                let mut suffix: Vec<Span> = match s.suffix.as_ref() {
+                    Some(editable) => std::iter::once('[')
+                        .chain(editable.chars())
+                        .chain(std::iter::once(']'))
+                        .map(|s| s.to_string().bold().yellow().underlined())
+                        .collect(),
+                    None => vec![],
+                };
 
-                if i == self.manager.active_index {
-                    let editable = s.suffix.as_ref().unwrap();
-                    if editable.cursor >= editable.len() {
-                        carry_over = true;
-                    } else if let Some(s) = suffix.spans.get_mut(editable.cursor) {
-                        s.style.bg = Some(Color::White);
+                if self.manager.active_index == i {
+                    match s
+                        .suffix
+                        .as_ref()
+                        .and_then(|e| suffix.get_mut(e.cursor() + 1))
+                    {
+                        Some(s) => s.style.bg = Some(Color::White),
+                        None => suffix.last_mut().unwrap().style.bg = Some(Color::White),
                     }
                 }
 
-                if carry_over {
-                    if prefix.spans.is_empty() {
-                        prefix = Line::from(" ".bg(Color::White));
-                    } else if let Some(p) = prefix.spans.first_mut() {
-                        p.style.bg = Some(Color::White);
-                    }
-                }
-
-                Line::from_iter(prefix.spans.into_iter().chain(suffix.spans))
+                Line::from_iter(
+                    s.prefix
+                        .iter()
+                        .map(|c| Span::from(c.to_string()))
+                        .chain(suffix),
+                )
             })
             .collect();
 
@@ -122,33 +127,6 @@ impl SnippetEngine {
 
     fn draw(&self, frame: &mut Frame) {
         frame.render_widget(self, frame.area());
-    }
-
-    fn lines_from_section(section: &Section) -> (Line, Line) {
-        (
-            section
-                .prefix
-                .iter()
-                .map(|c| Span::from(c.to_string()))
-                .collect(),
-            section
-                .suffix
-                .as_ref()
-                .map(|e| e.text())
-                .map(|t| {
-                    if t.is_empty() {
-                        vec![Span::from("^")]
-                    } else {
-                        t.chars().map(|c| Span::from(c.to_string())).collect()
-                    }
-                })
-                .map(|s| {
-                    s.into_iter()
-                        .map(|c| c.bold().yellow().underlined())
-                        .collect()
-                })
-                .unwrap_or_default(),
-        )
     }
 }
 

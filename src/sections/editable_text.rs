@@ -1,7 +1,12 @@
+use ratatui::{
+    crossterm::style::Stylize,
+    text::{Line, Span},
+};
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct EditableText {
-    pub cursor: usize,
-    pub chars: Vec<char>,
+    cursor: usize,
+    chars: Vec<char>,
 }
 
 impl EditableText {
@@ -50,6 +55,14 @@ impl EditableText {
 
     pub fn is_empty(&self) -> bool {
         self.chars.len() == 0
+    }
+
+    pub fn chars(&self) -> Vec<char> {
+        self.chars.clone()
+    }
+
+    pub fn cursor(&self) -> usize {
+        self.cursor
     }
 }
 
