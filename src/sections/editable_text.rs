@@ -1,8 +1,3 @@
-use ratatui::{
-    crossterm::style::Stylize,
-    text::{Line, Span},
-};
-
 #[derive(Debug, PartialEq, Eq)]
 pub struct EditableText {
     cursor: usize,
@@ -53,12 +48,8 @@ impl EditableText {
         self.chars.clone()
     }
 
-    pub fn cursor(&self) -> Option<usize> {
-        if self.chars.is_empty() {
-            None
-        } else {
-            Some(self.cursor)
-        }
+    pub fn insertion_position(&self) -> usize {
+        self.cursor
     }
 }
 
@@ -173,13 +164,18 @@ mod test {
     }
 
     #[test]
-    fn cursor_position() {
+    fn test_insertion_position() {
         let mut editable = create_editable("Some Text");
+        assert_eq!(editable.insertion_position(), 9);
         editable.move_left();
         editable.move_left();
-        editable.insert('s');
-        let result = editable.chars.iter().collect::<String>();
-        assert_eq!("osne".to_owned(), result);
+        assert_eq!(editable.insertion_position(), 7);
+    }
+
+    #[test]
+    fn test_insertion_position_on_empty() {
+        let editable = create_editable("");
+        assert_eq!(editable.insertion_position(), 0);
     }
 
     fn create_editable(suffix: &str) -> EditableText {
@@ -187,5 +183,4 @@ mod test {
         suffix.chars().for_each(|c| editable.insert(c));
         editable
     }
-
 }

@@ -1,0 +1,26 @@
+---
+source: src/snippet_engine.rs
+assertion_line: 147
+expression: terminal.backend()
+snapshot_kind: text
+---
+"╔══════════════════════════════ This is a title ═══════════════════════════════╗"
+"║                                                                              ║"
+"║ This is the body text                                                        ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"║                                                                              ║"
+"╚══════════════════ Next Snipp <Enter> Previous Snipp <Esc> ═══════════════════╝"

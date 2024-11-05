@@ -30,10 +30,6 @@ impl Section {
     pub fn chars(&self) -> Vec<char> {
         todo!()
     }
-
-    pub fn len(&self) -> usize {
-        self.prefix.len() + self.suffix.as_ref().map(|e| e.len()).unwrap_or_default()
-    }
 }
 
 #[cfg(test)]
@@ -60,31 +56,8 @@ mod test {
     fn final_text() {
         let mut section = Section::body("Hello".chars().collect());
         let mut editable = EditableText::new();
-        editable.chars = " World".chars().collect::<Vec<char>>();
+        " World".chars().for_each(|c| editable.insert(c));
         section.suffix = Some(editable);
         assert_eq!("Hello World".to_owned(), section.text());
-    }
-
-    #[test]
-    fn length() {
-        let mut section = Section::body("Some text goes".chars().collect());
-        let mut editable = EditableText::new();
-        editable.chars = "with".chars().collect::<Vec<char>>();
-        section.suffix = Some(editable);
-        assert_eq!(section.len(), 18);
-    }
-
-    #[test]
-    fn empty_editable() {
-        let mut section = Section::body("Some ".chars().collect());
-        section.suffix = None;
-        assert_eq!(section.len(), 5);
-    }
-
-    #[test]
-    fn empty_length() {
-        let mut section = Section::body("".chars().collect());
-        section.suffix = None;
-        assert_eq!(section.len(), 0);
     }
 }

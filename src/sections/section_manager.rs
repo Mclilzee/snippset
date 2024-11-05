@@ -172,40 +172,14 @@ mod test {
     }
 
     #[test]
-    fn cursor_character() {
-        let mut manager = SectionManager::new("Hello {}, another{} ok.");
-        assert_eq!(manager.text_with_cursor(), None);
-        manager.active_editable().unwrap().insert('s');
-        assert_eq!(manager.text_with_cursor(), None);
-        manager.active_editable().unwrap().move_left();
-        assert_eq!(manager.text_with_cursor(), Some('s'));
-    }
-
-    #[test]
-    fn cursor_position_does_not_depend_on_other_sections_cursor() {
-        let mut manager = SectionManager::new("Hello {}, another{} ok.");
-        assert_eq!(manager.text_with_cursor(), None);
-        let _ = manager.next_section();
-        manager.active_editable().unwrap().insert('s');
-        manager.active_editable().unwrap().move_left();
-        assert_eq!(manager.text_with_cursor(), Some('s'));
-        manager
-            .sections
-            .get_mut(0)
-            .and_then(|s| s.suffix.as_mut())
-            .unwrap()
-            .cursor = 3;
-        assert_eq!(manager.text_with_cursor(), Some('s'));
-    }
-
-    #[test]
     fn section_resets_cursor_position_on_change() {
         let mut manager = SectionManager::new("text {} more {}");
-        manager.active_editable().unwrap().cursor = 2;
-        assert_eq!(manager.active_editable().unwrap().cursor, 2);
+        manager.active_editable().unwrap().insert('s');
+        manager.active_editable().unwrap().move_left();
+        assert_eq!(manager.active_editable().unwrap().insertion_position(), 0);
         let _ = manager.next_section();
         let _ = manager.previous_section();
-        assert_eq!(manager.active_editable().unwrap().cursor, 0);
+        assert_eq!(manager.active_editable().unwrap().insertion_position(), 1);
     }
 
     fn section_body(str: &str) -> Section {

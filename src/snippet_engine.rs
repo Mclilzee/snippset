@@ -1,4 +1,4 @@
-use crate::sections::{section::Section, section_manager::SectionManager};
+use crate::sections::section_manager::SectionManager;
 use crossterm::event::{read, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     buffer::Buffer,
@@ -47,11 +47,12 @@ impl Widget for &SnippetEngine {
                     None => vec![],
                 };
 
-                if self.manager.active_index == i {
+                if self.manager.active_index == i && s.suffix.is_some() {
                     match s
                         .suffix
                         .as_ref()
-                        .and_then(|e| suffix.get_mut(e.cursor() + 1))
+                        // +1 since we add extra characters to our string
+                        .and_then(|e| suffix.get_mut(e.insertion_position() + 1))
                     {
                         Some(s) => s.style.bg = Some(Color::White),
                         None => suffix.last_mut().unwrap().style.bg = Some(Color::White),
