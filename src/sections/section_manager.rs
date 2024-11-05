@@ -1,13 +1,8 @@
 use super::{editable_text::EditableText, section::Section};
 
-pub struct SectionText {
-    pub prefix: String,
-    pub suffix: Option<String>,
-}
-
 pub struct SectionManager {
     pub sections: Vec<Section>,
-    active_index: usize,
+    pub active_index: usize,
 }
 
 impl SectionManager {
@@ -77,25 +72,8 @@ impl SectionManager {
         }
     }
 
-    pub fn section_text(&self) -> Vec<SectionText> {
-        self.sections
-            .iter()
-            .map(|s| SectionText {
-                prefix: s.prefix.iter().collect::<String>(),
-                suffix: s.suffix.as_ref().map(|e| e.text()),
-            })
-            .collect()
-    }
-
     pub fn text(&self) -> String {
         self.sections.iter().map(|s| s.text()).collect()
-    }
-
-    pub fn cursor_char(&self) -> Option<char> {
-        self.sections
-            .get(self.active_index)
-            .and_then(|s| s.suffix.as_ref())
-            .and_then(|s| s.cursor_char())
     }
 }
 
@@ -196,28 +174,28 @@ mod test {
     #[test]
     fn cursor_character() {
         let mut manager = SectionManager::new("Hello {}, another{} ok.");
-        assert_eq!(manager.cursor_char(), None);
+        assert_eq!(manager.text_with_cursor(), None);
         manager.active_editable().unwrap().insert('s');
-        assert_eq!(manager.cursor_char(), None);
+        assert_eq!(manager.text_with_cursor(), None);
         manager.active_editable().unwrap().move_left();
-        assert_eq!(manager.cursor_char(), Some('s'));
+        assert_eq!(manager.text_with_cursor(), Some('s'));
     }
 
     #[test]
     fn cursor_position_does_not_depend_on_other_sections_cursor() {
         let mut manager = SectionManager::new("Hello {}, another{} ok.");
-        assert_eq!(manager.cursor_char(), None);
+        assert_eq!(manager.text_with_cursor(), None);
         let _ = manager.next_section();
         manager.active_editable().unwrap().insert('s');
         manager.active_editable().unwrap().move_left();
-        assert_eq!(manager.cursor_char(), Some('s'));
+        assert_eq!(manager.text_with_cursor(), Some('s'));
         manager
             .sections
             .get_mut(0)
             .and_then(|s| s.suffix.as_mut())
             .unwrap()
             .cursor = 3;
-        assert_eq!(manager.cursor_char(), Some('s'));
+        assert_eq!(manager.text_with_cursor(), Some('s'));
     }
 
     #[test]

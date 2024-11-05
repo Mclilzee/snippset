@@ -36,10 +36,6 @@ impl EditableText {
         }
     }
 
-    pub fn cursor_char(&self) -> Option<char> {
-        self.chars.get(self.cursor).copied()
-    }
-
     pub fn cursor_to_right_edge(&mut self) {
         self.cursor = self.chars.len();
     }
@@ -50,6 +46,10 @@ impl EditableText {
 
     pub fn len(&self) -> usize {
         self.chars.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.chars.len() == 0
     }
 }
 
@@ -179,21 +179,21 @@ mod test {
     #[test]
     fn get_cursor_char() {
         let mut editable = create_editable("1234");
-        assert_eq!(editable.cursor_char(), None);
+        assert_eq!(editable.section_text(), None);
         editable.move_left();
         editable.move_left();
         editable.move_left();
-        assert_eq!(editable.cursor_char(), Some('2'));
+        assert_eq!(editable.section_text(), Some('2'));
         editable.move_left();
-        assert_eq!(editable.cursor_char(), Some('1'));
+        assert_eq!(editable.section_text(), Some('1'));
         editable.move_left();
-        assert_eq!(editable.cursor_char(), Some('1'));
+        assert_eq!(editable.section_text(), Some('1'));
     }
 
     #[test]
     fn cursor_char_when_editable_is_empty() {
         let editable = create_editable("");
-        assert_eq!(editable.cursor_char(), None);
+        assert_eq!(editable.section_text(), None);
     }
 
     fn create_editable(suffix: &str) -> EditableText {

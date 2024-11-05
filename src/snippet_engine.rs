@@ -1,11 +1,11 @@
-use crate::sections::section_manager::SectionManager;
+use crate::sections::{section::Section, section_manager::SectionManager};
 use crossterm::event::{read, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
-    style::Stylize,
+    style::{Color, Stylize},
     symbols::border,
-    text::Line,
+    text::{Line, Span},
     widgets::{Block, Paragraph, Widget},
     Frame,
 };
@@ -30,23 +30,35 @@ impl Widget for &SnippetEngine {
             .title(title.centered())
             .padding(ratatui::widgets::Padding::uniform(1))
             .title_bottom(instructions.centered())
-            .border_set(border::THICK);
+            .border_set(border::DOUBLE);
 
+        let mut carry_over = false;
         let text: Vec<_> = self
             .manager
-            .section_text()
-            .into_iter()
-            .flat_map(|s| {
-                if let Some(suffix) = s.suffix.as_ref() {
-                    if suffix.is_empty() {
-                        return vec![s.prefix.into(), "^".bold().yellow().underlined()];
-                    }
-                };
+            .sections
+            .iter()
+            .enumerate()
+            .flat_map(|(i, s)| {
+                let (mut prefix, mut suffix) = SnippetEngine::lines_from_section(s);
 
-                vec![
-                    s.prefix.into(),
-                    s.suffix.unwrap_or_default().bold().yellow().underlined(),
-                ]
+                if i == self.manager.active_index {
+                    let editable = s.suffix.as_ref().unwrap();
+                    if editable.cursor >= editable.len() {
+                        carry_over = true;
+                    } else if let Some(s) = suffix.spans.get_mut(editable.cursor) {
+                        s.style.bg = Some(Color::White);
+                    }
+                }
+
+                if carry_over {
+                    if prefix.spans.is_empty() {
+                        prefix = Line::from(" ".bg(Color::White));
+                    } else if let Some(p) = prefix.spans.first_mut() {
+                        p.style.bg = Some(Color::White);
+                    }
+                }
+
+                Line::from_iter(prefix.spans.into_iter().chain(suffix.spans.into_iter()))
             })
             .collect();
 
@@ -110,6 +122,33 @@ impl SnippetEngine {
 
     fn draw(&self, frame: &mut Frame) {
         frame.render_widget(self, frame.area());
+    }
+
+    fn lines_from_section(section: &Section) -> (Line, Line) {
+        (
+            section
+                .prefix
+                .iter()
+                .map(|c| Span::from(c.to_string()))
+                .collect(),
+            section
+                .suffix
+                .as_ref()
+                .map(|e| e.text())
+                .map(|t| {
+                    if t.is_empty() {
+                        vec![Span::from("^")]
+                    } else {
+                        t.chars().map(|c| Span::from(c.to_string())).collect()
+                    }
+                })
+                .map(|s| {
+                    s.into_iter()
+                        .map(|c| c.bold().yellow().underlined())
+                        .collect()
+                })
+                .unwrap_or_default(),
+        )
     }
 }
 

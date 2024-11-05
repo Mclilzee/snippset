@@ -27,6 +27,10 @@ impl Section {
         format!("{prefix}{suffix}")
     }
 
+    pub fn chars(&self) -> Vec<char> {
+        todo!()
+    }
+
     pub fn len(&self) -> usize {
         self.prefix.len() + self.suffix.as_ref().map(|e| e.len()).unwrap_or_default()
     }
