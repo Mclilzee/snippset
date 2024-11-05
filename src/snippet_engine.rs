@@ -58,7 +58,7 @@ impl Widget for &SnippetEngine {
                     }
                 }
 
-                Line::from_iter(prefix.spans.into_iter().chain(suffix.spans.into_iter()))
+                Line::from_iter(prefix.spans.into_iter().chain(suffix.spans))
             })
             .collect();
 
