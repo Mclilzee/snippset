@@ -127,6 +127,7 @@ impl SnippetEngine {
     }
 
     fn draw(&self, frame: &mut Frame) {
+        frame.set_cursor_position((u16::MAX - 1, u16::MAX - 1));
         frame.render_widget(self, frame.area());
     }
 }
