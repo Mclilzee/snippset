@@ -9,7 +9,7 @@ use ratatui::{
     widgets::{Block, Paragraph, Widget},
     Frame,
 };
-use std::io;
+use anyhow::{bail, Result};
 
 pub struct SnippetEngine {
     title: String,
@@ -84,7 +84,7 @@ impl SnippetEngine {
         }
     }
 
-    pub fn start(&mut self) -> io::Result<String> {
+    pub fn start(&mut self) -> Result<String> {
         let mut terminal = ratatui::init();
         loop {
             terminal.draw(|frame| self.draw(frame))?;
@@ -107,10 +107,10 @@ impl SnippetEngine {
         Ok(self.manager.text())
     }
 
-    fn handle_input(&mut self, keycode: KeyCode) -> Result<(), String> {
+    fn handle_input(&mut self, keycode: KeyCode) -> Result<()> {
         let editor = match self.manager.active_editable() {
             Some(ed) => ed,
-            None => return Err("Couldn't retrieve editable section".into()),
+            None => bail!("Couldn't retrieve editable section"),
         };
 
         match keycode {

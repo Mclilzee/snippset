@@ -1,4 +1,5 @@
 use super::{editable_text::EditableText, section::Section};
+use anyhow::{bail, Result};
 
 pub struct SectionManager {
     pub sections: Vec<Section>,
@@ -48,12 +49,12 @@ impl SectionManager {
         section.suffix.as_mut()
     }
 
-    pub fn next_section(&mut self) -> Result<(), String> {
+    pub fn next_section(&mut self) -> Result<()> {
         let next_index = self.active_index + 1;
 
         // Skip the tail
         if next_index >= self.sections.len() - 1 {
-            Err("There is no more sections".into())
+            bail!("There is no more sections")
         } else {
             if let Some(e) = self.active_editable() {
                 e.cursor_to_right_edge()
@@ -63,12 +64,12 @@ impl SectionManager {
         }
     }
 
-    pub fn previous_section(&mut self) -> Result<(), String> {
+    pub fn previous_section(&mut self) -> Result<()> {
         if self.active_index > 0 {
             self.active_index -= 1;
             Ok(())
         } else {
-            Err("Cannot go bellow zero".to_owned())
+            bail!("Cannot go bellow zero")
         }
     }
 
