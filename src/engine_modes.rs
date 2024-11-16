@@ -1,14 +1,12 @@
 use crate::snippet_engine::SnippetEngine;
 use crate::Snippets;
 use inquire::{Select, Text};
-use std::path::PathBuf;
-use std::{collections::HashMap, fs::File, io::BufReader};
-use anyhow::{bail, Result};
+use std::path::{Path, PathBuf};
+use std::{fs::File, io::BufReader};
+use anyhow::{bail, Context, Result};
 
 pub fn start_editing_engine(path: PathBuf) -> Result<()> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let map: Snippets = serde_json::from_reader(reader)?;
+    let map: Snippets = get_snippets_from_file(&path)?;
     let key = Select::new("Choose snippet", map.keys().collect()).prompt()?;
 
     let snippet = match map.get(key) {
@@ -23,11 +21,7 @@ pub fn start_editing_engine(path: PathBuf) -> Result<()> {
 }
 
 pub fn add_to_file(path: PathBuf) -> Result<()> {
-    let mut map: Snippets = match File::open(&path) {
-        Ok(f) => serde_json::from_reader(BufReader::new(f))?,
-        Err(_) => HashMap::new(),
-    };
-
+    let mut map: Snippets = get_snippets_from_file(&path).unwrap_or_default();
     let title = Text::new("Title: ").prompt()?;
     let snippet = Text::new("Snippet: ")
         .prompt()?
@@ -35,14 +29,11 @@ pub fn add_to_file(path: PathBuf) -> Result<()> {
 
     map.insert(title, snippet);
     serde_json::to_writer(File::create(&path)?, &map)?;
-
     Ok(())
 }
 
 pub fn edit_file(path: PathBuf) -> Result<()> {
-    let file = File::open(&path)?;
-    let reader = BufReader::new(file);
-    let mut map: Snippets = serde_json::from_reader(reader)?;
+    let mut map: Snippets = get_snippets_from_file(&path)?;
 
     let key = Select::new("Choose snippet to edit", map.keys().collect())
         .prompt()?
@@ -64,4 +55,10 @@ pub fn edit_file(path: PathBuf) -> Result<()> {
     serde_json::to_writer(File::create(&path)?, &map)?;
 
     Ok(())
+}
+
+fn get_snippets_from_file(path: &Path) -> Result<Snippets> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    serde_json::from_reader(reader).with_context(|| format!("{path:?} is not a valid snippet JSON format"))
 }
