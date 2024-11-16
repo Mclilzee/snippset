@@ -5,10 +5,11 @@ This tool was inspired by a friend of mine after sharing his tools about creatin
 Takes a json file and load it for snippets. The file needs to be valid json, the key will be used for the title, and the body will be used for the snippet. Use '{}' to mark an area as editable this will be the placeholder for replacement.
 
 #### Example json format:
-```json {
-        "Title": "Snippet {}",
-        "Another snippet", "Snippet mark new lines \nplaceholder {} can have multiple {} placeholders"
-        }
+```json
+{
+    "The snippet title": "The snippet body {}",
+    "Another Title": "Snippet mark new lines \nplaceholder {} can have multiple {} placeholders"
+}
 ```
 
 Enter will move your cursor to the next placeholder if you have multiples, while Esc will move to previous ones.
