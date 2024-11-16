@@ -29,7 +29,6 @@ fn main() -> Result<()> {
 
     let result = engine(config.path);
     execute!(stdout(), LeaveAlternateScreen)?;
-
     result?;
     Ok(())
 }

@@ -1,5 +1,6 @@
 use crate::snippet_engine::SnippetEngine;
 use crate::Snippets;
+use arboard::Clipboard;
 use inquire::{Select, Text};
 use std::path::{Path, PathBuf};
 use std::{fs::File, io::BufReader};
@@ -15,7 +16,10 @@ pub fn start_editing_engine(path: PathBuf) -> Result<()> {
     };
 
     let mut snippet_engine = SnippetEngine::new(key, snippet);
-    let _result = snippet_engine.start()?;
+    let text = snippet_engine.start()?;
+
+    let mut clipboard = Clipboard::new()?;
+    clipboard.set_text(text)?;
     println!("Copied result to clipboard");
     Ok(())
 }
