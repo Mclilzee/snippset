@@ -58,7 +58,7 @@ pub fn edit_file(path: PathBuf) -> Result<()> {
 }
 
 fn get_snippets_from_file(path: &Path) -> Result<Snippets> {
-    let file = File::open(path)?;
+    let file = File::open(path).with_context(|| format!("{path:?} could not be found"))?;
     let reader = BufReader::new(file);
     serde_json::from_reader(reader).with_context(|| format!("{path:?} is not a valid snippet JSON format"))
 }
